@@ -1406,11 +1406,30 @@ class MessageLookup extends MessageLookupByLibrary {
       "Failed to release memory",
     ),
     "remote": MessageLookupByLibrary.simpleMessage("Remote"),
+    "remoteConnectTip": MessageLookupByLibrary.simpleMessage(
+      "Enter the external controller secret from the desktop application.",
+    ),
+    "remoteConnectionLost": MessageLookupByLibrary.simpleMessage(
+      "Cannot connect to the desktop application. Check that it is running and the secret is correct.",
+    ),
+    "remoteControl": MessageLookupByLibrary.simpleMessage("Web control"),
+    "remoteControlDesc": MessageLookupByLibrary.simpleMessage(
+      "Control this desktop application at 127.0.0.1:9091.",
+    ),
     "remoteDestination": MessageLookupByLibrary.simpleMessage(
       "Remote destination",
     ),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage(
       "Remote DNS resolution",
+    ),
+    "remoteOperationFailed": MessageLookupByLibrary.simpleMessage(
+      "The operation failed.",
+    ),
+    "remoteSettingsConflict": MessageLookupByLibrary.simpleMessage(
+      "These settings changed on the desktop. Reopen this form before saving.",
+    ),
+    "remoteUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Web control is unavailable. Check whether port 9091 is already in use.",
     ),
     "remove": MessageLookupByLibrary.simpleMessage("Remove"),
     "rename": MessageLookupByLibrary.simpleMessage("Rename"),

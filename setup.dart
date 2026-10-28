@@ -178,6 +178,17 @@ Future<int> _package(
   final depExit = await _ensureDependencies(platform);
   if (depExit != 0) return depExit;
 
+  if (platform == 'macos') {
+    final webBuild = await Process.start(
+      'bash',
+      ['tool/build_remote_web.sh'],
+      workingDirectory: rootDir,
+      mode: ProcessStartMode.inheritStdio,
+    );
+    final webExit = await webBuild.exitCode;
+    if (webExit != 0) return webExit;
+  }
+
   final activateResult = await Process.run('dart', [
     'pub',
     'global',

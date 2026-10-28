@@ -357,20 +357,33 @@ class ProfilesAction extends _$ProfilesAction {
     _showProfiles();
     final profile = await globalState.loadingRun(
       tag: LoadingTag.profiles,
-      () => link.isShareLink
-          ? _fromShareLinks(Profile.normal(label: label), [link])
-          : _withAgeSecretKey(
-              Profile.normal(
-                label: label,
-                url: link,
-              ).copyWith(ageSecretKey: ageSecretKey),
-              _download,
-            ),
+      () => profileFromLink(link, label: label, ageSecretKey: ageSecretKey),
       title: currentAppLocalizations.addProfile,
     );
     if (profile != null) {
       putProfile(profile);
     }
+  }
+
+  Future<Profile> profileFromLink(
+    String link, {
+    String? label,
+    String ageSecretKey = '',
+    bool promptForSecret = true,
+  }) {
+    if (link.isShareLink) {
+      return _fromShareLinks(Profile.normal(label: label), [link]);
+    }
+    if (link.webUri == null) {
+      throw MessageException(currentAppLocalizations.invalidLinkTip);
+    }
+    final profile = Profile.normal(
+      label: label,
+      url: link,
+    ).copyWith(ageSecretKey: ageSecretKey);
+    return promptForSecret
+        ? _withAgeSecretKey(profile, _download)
+        : _download(profile);
   }
 
   /// Ids are taken up front so the list keeps the order of [links]; the share

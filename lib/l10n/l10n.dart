@@ -8052,6 +8052,76 @@ class AppLocalizations {
       args: [name],
     );
   }
+
+  /// `Web control`
+  String get remoteControl {
+    return Intl.message(
+      'Web control',
+      name: 'remoteControl',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Control this desktop application at 127.0.0.1:9091.`
+  String get remoteControlDesc {
+    return Intl.message(
+      'Control this desktop application at 127.0.0.1:9091.',
+      name: 'remoteControlDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Enter the external controller secret from the desktop application.`
+  String get remoteConnectTip {
+    return Intl.message(
+      'Enter the external controller secret from the desktop application.',
+      name: 'remoteConnectTip',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Cannot connect to the desktop application. Check that it is running and the secret is correct.`
+  String get remoteConnectionLost {
+    return Intl.message(
+      'Cannot connect to the desktop application. Check that it is running and the secret is correct.',
+      name: 'remoteConnectionLost',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `The operation failed.`
+  String get remoteOperationFailed {
+    return Intl.message(
+      'The operation failed.',
+      name: 'remoteOperationFailed',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Web control is unavailable. Check whether port 9091 is already in use.`
+  String get remoteUnavailable {
+    return Intl.message(
+      'Web control is unavailable. Check whether port 9091 is already in use.',
+      name: 'remoteUnavailable',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `These settings changed on the desktop. Reopen this form before saving.`
+  String get remoteSettingsConflict {
+    return Intl.message(
+      'These settings changed on the desktop. Reopen this form before saving.',
+      name: 'remoteSettingsConflict',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -1188,8 +1188,27 @@ class MessageLookup extends MessageLookupByLibrary {
       "메모리를 해제하지 못했습니다",
     ),
     "remote": MessageLookupByLibrary.simpleMessage("원격"),
+    "remoteConnectTip": MessageLookupByLibrary.simpleMessage(
+      "데스크톱 앱의 외부 컨트롤러 비밀 키를 입력하세요.",
+    ),
+    "remoteConnectionLost": MessageLookupByLibrary.simpleMessage(
+      "연결할 수 없습니다. 앱 실행 상태와 비밀 키를 확인하세요.",
+    ),
+    "remoteControl": MessageLookupByLibrary.simpleMessage("웹 제어"),
+    "remoteControlDesc": MessageLookupByLibrary.simpleMessage(
+      "127.0.0.1:9091에서 이 데스크톱 앱을 제어합니다.",
+    ),
     "remoteDestination": MessageLookupByLibrary.simpleMessage("원격 목적지"),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage("원격 DNS 확인"),
+    "remoteOperationFailed": MessageLookupByLibrary.simpleMessage(
+      "작업에 실패했습니다.",
+    ),
+    "remoteSettingsConflict": MessageLookupByLibrary.simpleMessage(
+      "데스크톱에서 설정이 변경되었습니다. 양식을 다시 열어 저장하세요.",
+    ),
+    "remoteUnavailable": MessageLookupByLibrary.simpleMessage(
+      "웹 제어를 사용할 수 없습니다. 9091 포트가 사용 중인지 확인하세요.",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("제거"),
     "rename": MessageLookupByLibrary.simpleMessage("이름 변경"),
     "replace": MessageLookupByLibrary.simpleMessage("바꾸기"),

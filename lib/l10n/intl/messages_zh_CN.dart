@@ -1104,8 +1104,25 @@ class MessageLookup extends MessageLookupByLibrary {
     "releaseMemory": MessageLookupByLibrary.simpleMessage("释放内存"),
     "releaseMemoryFailed": MessageLookupByLibrary.simpleMessage("释放内存失败"),
     "remote": MessageLookupByLibrary.simpleMessage("远程"),
+    "remoteConnectTip": MessageLookupByLibrary.simpleMessage(
+      "请输入桌面应用中的外部控制器密钥。",
+    ),
+    "remoteConnectionLost": MessageLookupByLibrary.simpleMessage(
+      "无法连接桌面应用，请检查应用是否运行及密钥是否正确。",
+    ),
+    "remoteControl": MessageLookupByLibrary.simpleMessage("Web 控制"),
+    "remoteControlDesc": MessageLookupByLibrary.simpleMessage(
+      "通过 127.0.0.1:9091 控制此桌面应用。",
+    ),
     "remoteDestination": MessageLookupByLibrary.simpleMessage("远程目标"),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage("远程 DNS 解析"),
+    "remoteOperationFailed": MessageLookupByLibrary.simpleMessage("操作失败。"),
+    "remoteSettingsConflict": MessageLookupByLibrary.simpleMessage(
+      "这些设置已在桌面端更改，请重新打开表单后保存。",
+    ),
+    "remoteUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Web 控制不可用，请检查 9091 端口是否被占用。",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("移除"),
     "rename": MessageLookupByLibrary.simpleMessage("重命名"),
     "replace": MessageLookupByLibrary.simpleMessage("替换"),

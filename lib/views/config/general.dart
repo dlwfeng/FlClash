@@ -4,12 +4,14 @@ import 'package:fl_clash/features/form/form.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/remote/desktop.dart';
 import 'package:fl_clash/views/config/on_demand.dart';
 import 'package:fl_clash/views/config/override.dart';
 import 'package:fl_clash/views/config/user_agents.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 part 'general/overrides.dart';
 part 'general/port_form.dart';
@@ -308,6 +310,19 @@ class GeneralView extends ConsumerWidget {
             .ensureControllerSecret(),
       ),
       if (externalController) const ExternalControllerSecretItem(),
+      if (system.isDesktop)
+        ListItem(
+          title: Text(currentAppLocalizations.remoteControl),
+          subtitle: Text(currentAppLocalizations.remoteControlDesc),
+          onTap: () async {
+            final remote = desktopRemoteControl;
+            if (remote?.server.boundPort == null) {
+              dialogs.showNotifier(currentAppLocalizations.remoteUnavailable);
+              return;
+            }
+            await launchUrl(remote!.uri);
+          },
+        ),
       const AuthenticationItem(),
       if (authentication) ...const [
         AuthenticationAccountItem(),

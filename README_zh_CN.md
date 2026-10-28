@@ -118,6 +118,8 @@ dart setup.dart android   # 或 windows、macos、linux
 
 其余选项可以运行 `dart setup.dart --help` 查看，例如用 `--targets` 只构建部分安装包格式。
 
+macOS 与 Web 控制端的打包、安装、机场迁移及 Tailscale 访问，见[部署文档](docs/macos-web-install.md)。
+
 ## 支持
 
 给仓库点一个 Star 是支持项目最简单的方式。问题讨论和更新通知请关注 [Telegram 频道](https://t.me/FlClash)，

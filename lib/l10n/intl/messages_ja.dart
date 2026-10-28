@@ -1209,8 +1209,25 @@ class MessageLookup extends MessageLookupByLibrary {
       "メモリの解放に失敗しました",
     ),
     "remote": MessageLookupByLibrary.simpleMessage("リモート"),
+    "remoteConnectTip": MessageLookupByLibrary.simpleMessage(
+      "デスクトップアプリの外部コントローラーのシークレットを入力してください。",
+    ),
+    "remoteConnectionLost": MessageLookupByLibrary.simpleMessage(
+      "デスクトップアプリに接続できません。起動状態とシークレットを確認してください。",
+    ),
+    "remoteControl": MessageLookupByLibrary.simpleMessage("Web コントロール"),
+    "remoteControlDesc": MessageLookupByLibrary.simpleMessage(
+      "127.0.0.1:9091 でこのデスクトップアプリを操作します。",
+    ),
     "remoteDestination": MessageLookupByLibrary.simpleMessage("リモート宛先"),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage("リモート DNS 解決"),
+    "remoteOperationFailed": MessageLookupByLibrary.simpleMessage("操作に失敗しました。"),
+    "remoteSettingsConflict": MessageLookupByLibrary.simpleMessage(
+      "デスクトップ側で設定が変更されました。フォームを開き直して保存してください。",
+    ),
+    "remoteUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Web コントロールを利用できません。ポート 9091 が使用中でないか確認してください。",
+    ),
     "remove": MessageLookupByLibrary.simpleMessage("削除"),
     "rename": MessageLookupByLibrary.simpleMessage("名前を変更"),
     "replace": MessageLookupByLibrary.simpleMessage("置換"),

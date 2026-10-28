@@ -14,6 +14,7 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/l10n/l10n.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/remote/desktop.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/views/disclaimer.dart';
 import 'package:fl_clash/views/navigation.dart';
@@ -184,6 +185,22 @@ class Bootstrap {
       await _container.read(setupActionProvider.notifier).initStatus();
     }
     _container.read(initProvider.notifier).value = true;
+    if (system.isDesktop && !safeModeBuild) {
+      final remote = DesktopRemoteControl(_container);
+      desktopRemoteControl = remote;
+      try {
+        await remote.start();
+      } catch (error) {
+        await remote.close();
+        if (identical(desktopRemoteControl, remote)) {
+          desktopRemoteControl = null;
+        }
+        commonPrint.log(
+          'Remote control could not bind 0.0.0.0:9091: ${compactError(error)}',
+          logLevel: LogLevel.warning,
+        );
+      }
+    }
     unawaited(_container.read(resourcesActionProvider.notifier).autoUpdate());
     await bootGuard.markRunning();
     unawaited(_container.read(locationPermissionsProvider.notifier).refresh());

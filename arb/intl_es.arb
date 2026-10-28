@@ -963,5 +963,12 @@
   "preferred": "Preferido",
   "addToLocalProxies": "Añadir a proxies locales",
   "addedToLocalProxies": "{name} añadido a proxies locales",
-  "alreadyInLocalProxies": "{name} ya está en proxies locales"
+  "alreadyInLocalProxies": "{name} ya está en proxies locales",
+  "remoteControl": "Control web",
+  "remoteControlDesc": "Controla esta aplicación mediante 127.0.0.1:9091.",
+  "remoteConnectTip": "Introduce el secreto del controlador externo de la aplicación de escritorio.",
+  "remoteConnectionLost": "No se puede conectar. Comprueba que la aplicación esté abierta y el secreto sea correcto.",
+  "remoteOperationFailed": "La operación ha fallado.",
+  "remoteUnavailable": "Control web no disponible. Comprueba si el puerto 9091 está en uso.",
+  "remoteSettingsConflict": "Estos ajustes cambiaron en el escritorio. Vuelve a abrir el formulario antes de guardar."
 }

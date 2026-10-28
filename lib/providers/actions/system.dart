@@ -48,6 +48,7 @@ class SystemAction extends _$SystemAction {
       });
     }
     await Future.wait([
+      ?desktopRemoteControl?.close(),
       ?saveOperation,
       bootGuard.markClosed(),
       if (systemDnsCoordinator != null) systemDnsCoordinator!.shutdown(),

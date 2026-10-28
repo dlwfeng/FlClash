@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:test/test.dart';
 
-const _entryPoints = ['lib/main.dart'];
+const _entryPoints = ['lib/main.dart', 'lib/remote/main.dart'];
 
 /// Types, and the top level names a file publishes alongside them — the
 /// `final appPath = AppPath()` singleton pattern is how most of `lib/common`

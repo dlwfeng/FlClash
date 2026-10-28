@@ -1518,11 +1518,30 @@ class MessageLookup extends MessageLookupByLibrary {
       "Échec de la libération de la mémoire",
     ),
     "remote": MessageLookupByLibrary.simpleMessage("Distant"),
+    "remoteConnectTip": MessageLookupByLibrary.simpleMessage(
+      "Saisissez le secret du contrôleur externe de l’application de bureau.",
+    ),
+    "remoteConnectionLost": MessageLookupByLibrary.simpleMessage(
+      "Connexion impossible. Vérifiez que l’application est ouverte et que le secret est correct.",
+    ),
+    "remoteControl": MessageLookupByLibrary.simpleMessage("Contrôle Web"),
+    "remoteControlDesc": MessageLookupByLibrary.simpleMessage(
+      "Contrôlez cette application via 127.0.0.1:9091.",
+    ),
     "remoteDestination": MessageLookupByLibrary.simpleMessage(
       "Destination distante",
     ),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage(
       "Résolution DNS distante",
+    ),
+    "remoteOperationFailed": MessageLookupByLibrary.simpleMessage(
+      "L’opération a échoué.",
+    ),
+    "remoteSettingsConflict": MessageLookupByLibrary.simpleMessage(
+      "Ces réglages ont changé sur le bureau. Rouvrez le formulaire avant d’enregistrer.",
+    ),
+    "remoteUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Contrôle Web indisponible. Vérifiez si le port 9091 est déjà utilisé.",
     ),
     "remove": MessageLookupByLibrary.simpleMessage("Retirer"),
     "rename": MessageLookupByLibrary.simpleMessage("Renommer"),

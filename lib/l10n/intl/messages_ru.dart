@@ -1468,11 +1468,30 @@ class MessageLookup extends MessageLookupByLibrary {
       "Не удалось освободить память",
     ),
     "remote": MessageLookupByLibrary.simpleMessage("Удалённо"),
+    "remoteConnectTip": MessageLookupByLibrary.simpleMessage(
+      "Введите секрет внешнего контроллера из настольного приложения.",
+    ),
+    "remoteConnectionLost": MessageLookupByLibrary.simpleMessage(
+      "Не удалось подключиться. Проверьте, что приложение запущено и секрет верен.",
+    ),
+    "remoteControl": MessageLookupByLibrary.simpleMessage("Веб-управление"),
+    "remoteControlDesc": MessageLookupByLibrary.simpleMessage(
+      "Управление этим приложением через 127.0.0.1:9091.",
+    ),
     "remoteDestination": MessageLookupByLibrary.simpleMessage(
       "Удалённое назначение",
     ),
     "remoteDnsResolve": MessageLookupByLibrary.simpleMessage(
       "Удалённое разрешение DNS",
+    ),
+    "remoteOperationFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось выполнить операцию.",
+    ),
+    "remoteSettingsConflict": MessageLookupByLibrary.simpleMessage(
+      "Настройки изменены в настольном приложении. Откройте форму заново перед сохранением.",
+    ),
+    "remoteUnavailable": MessageLookupByLibrary.simpleMessage(
+      "Веб-управление недоступно. Проверьте, не занят ли порт 9091.",
     ),
     "remove": MessageLookupByLibrary.simpleMessage("Убрать"),
     "rename": MessageLookupByLibrary.simpleMessage("Переименовать"),
