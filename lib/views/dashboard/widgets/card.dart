@@ -1,11 +1,10 @@
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:fl_clash/state.dart';
+import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/views/dashboard/layout.dart';
 import 'package:fl_clash/views/dashboard/style.dart';
-import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/rendering.dart';
 import 'package:material_new_shapes/material_new_shapes.dart';
 import 'package:material_ui/material_ui.dart';
@@ -175,9 +174,9 @@ class DashboardFitText extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = globalState.measure
-            .computeTextSize(Text(text, style: style))
-            .width;
+        final width = MeasureScope.of(
+          context,
+        ).computeTextSize(Text(text, style: style)).width;
         if (width * _minScale <= constraints.maxWidth) {
           return FittedBox(
             fit: BoxFit.scaleDown,
@@ -710,9 +709,9 @@ class DashboardSwitchRow extends StatelessWidget {
         DashboardSwitch.trackWidth;
     return titles.every(
       (title) =>
-          globalState.measure
-              .computeTextSize(Text(title, style: style))
-              .width <=
+          MeasureScope.of(
+            context,
+          ).computeTextSize(Text(title, style: style)).width <=
           room,
     );
   }

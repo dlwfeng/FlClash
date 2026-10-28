@@ -6,7 +6,6 @@ import 'package:fl_clash/providers/action.dart';
 import 'package:fl_clash/providers/app.dart';
 import 'package:fl_clash/providers/config.dart';
 import 'package:fl_clash/state.dart';
-import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform;
@@ -14,26 +13,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../providers/state.dart';
-
-const _pageTransitionsTheme = PageTransitionsTheme(
-  builders: <TargetPlatform, PageTransitionsBuilder>{
-    TargetPlatform.android: commonSharedXPageTransitions,
-    TargetPlatform.windows: commonSharedXPageTransitions,
-    TargetPlatform.linux: commonSharedXPageTransitions,
-    TargetPlatform.macOS: commonSharedXPageTransitions,
-  },
-);
-
-const _actionIconTheme = ActionIconThemeData(
-  backButtonIconBuilder: _backButtonIcon,
-  closeButtonIconBuilder: _closeButtonIcon,
-);
-
-Widget _backButtonIcon(BuildContext context) =>
-    GlyphIcon(AppGlyphs.backFor(Theme.of(context).platform));
-
-Widget _closeButtonIcon(BuildContext context) =>
-    const GlyphIcon(AppGlyphs.close);
 
 /// A rebuilt ThemeData never equals the last, and ThemeCrossFade fades on that.
 final _appThemes = <Brightness, ({Object inputs, ThemeData theme})>{};
@@ -60,22 +39,12 @@ ThemeData watchAppTheme(WidgetRef ref, Brightness brightness) {
   ) when cached == inputs) {
     return theme;
   }
-  final theme = ThemeData(
-    useMaterial3: true,
-    pageTransitionsTheme: _pageTransitionsTheme,
-    actionIconTheme: _actionIconTheme,
+  final theme = buildAppTheme(
     colorScheme: colorScheme,
     fontFamily: fontFamily,
-    fontFamilyFallback: appFontFamilyFallback(
-      platform: defaultTargetPlatform,
-      locales: locales,
-      fontFamily: fontFamily,
-    ),
-    extensions: [
-      if (brightness == Brightness.dark)
-        ElevatedColorScheme(colorScheme.elevated),
-    ],
-  ).withAppShapes.withAppSurfaces.withAppTypography;
+    platform: defaultTargetPlatform,
+    locales: locales,
+  );
   _appThemes[brightness] = (inputs: inputs, theme: theme);
   return theme;
 }

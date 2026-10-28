@@ -7,6 +7,7 @@ import 'package:fl_clash/models/models.dart';
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/state.dart';
 import 'package:fl_clash/ui/ui.dart';
+import 'package:fl_clash/ui/navigation_frame.dart';
 import 'package:fl_clash/widgets/icon.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -221,56 +222,17 @@ class AppSidebarContainer extends ConsumerWidget {
     final viewMode = navigationState.viewMode;
     final currentIndex = navigationState.currentIndex;
     final backdropOpacity = ref.watch(windowBlurProvider);
-    final page = SurfaceLevel.page.colorOf(context.colorScheme);
-    final chrome = context.colorScheme.chromeSurface;
-    void onSelected(int index) {
-      _handleToPage(ref, navigationItems[index].label);
-    }
-
-    final hasSidebar = viewMode != ViewMode.mobile;
-    final isLtr = Directionality.of(context) == TextDirection.ltr;
-    return Container(
-      color: backdropOpacity != null ? Colors.transparent : page,
-      child: Row(
-        children: [
-          AnimatedVisibility.sidebar(
-            visible: hasSidebar,
-            child: Material(
-              color: backdropOpacity != null
-                  ? chrome.withValues(alpha: backdropOpacity)
-                  : chrome,
-              shape: BorderDirectional(end: Divider.createBorderSide(context)),
-              child: MediaQuery.removePadding(
-                context: context,
-                removeLeft: !isLtr,
-                removeRight: isLtr,
-                child: _Sidebar(
-                  items: navigationItems,
-                  currentIndex: currentIndex,
-                  viewMode: viewMode,
-                  onSelected: onSelected,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: ClipRect(
-              child: LayoutBuilder(
-                builder: (_, constraints) {
-                  _updateSideBarWidth(ref, constraints.maxWidth);
-                  return MediaQuery.removePadding(
-                    context: context,
-                    removeLeft: hasSidebar && isLtr,
-                    removeRight: hasSidebar && !isLtr,
-                    child: child,
-                  );
-                },
-              ),
-            ),
-          ),
-        ],
+    return NavigationFrame(
+      hasSidebar: viewMode != ViewMode.mobile,
+      backdropOpacity: backdropOpacity,
+      onContentWidth: (width) => _updateSideBarWidth(ref, width),
+      sidebar: _Sidebar(
+        items: navigationItems,
+        currentIndex: currentIndex,
+        viewMode: viewMode,
+        onSelected: (index) => _handleToPage(ref, navigationItems[index].label),
       ),
+      child: child,
     );
   }
 }

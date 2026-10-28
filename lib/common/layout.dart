@@ -5,7 +5,7 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 
-import 'constant.dart';
+import 'package:fl_clash/ui/navigation_frame.dart';
 
 double getWindowHeaderHeight({required bool isDesktop, required bool isMacOS}) {
   if (!isDesktop) return 0;
@@ -33,8 +33,8 @@ bool showsWindowHeader({
 }
 
 ViewMode getViewMode(double viewWidth) {
-  if (viewWidth <= maxMobileWidth) return ViewMode.mobile;
-  if (viewWidth <= maxLaptopWidth) return ViewMode.laptop;
+  if (viewWidth <= mobileNavigationMaxWidth) return ViewMode.mobile;
+  if (viewWidth <= compactNavigationMaxWidth) return ViewMode.laptop;
   return ViewMode.desktop;
 }
 

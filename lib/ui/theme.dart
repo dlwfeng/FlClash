@@ -1,3 +1,8 @@
+import 'package:fl_clash/ui/font.dart';
+import 'package:fl_clash/ui/icons/icons.dart';
+import 'package:fl_clash/ui/navigator.dart';
+import 'package:fl_clash/ui/shape.dart';
+import 'package:fl_clash/ui/surface.dart';
 import 'package:fl_clash/ui/color.dart';
 import 'package:fl_clash/ui/metrics.dart';
 import 'package:fl_clash/ui/typography.dart';
@@ -150,3 +155,46 @@ class SliderDefaultsM3 extends SliderThemeData {
   @override
   double? get trackGap => 6.0;
 }
+
+const _pageTransitionsTheme = PageTransitionsTheme(
+  builders: <TargetPlatform, PageTransitionsBuilder>{
+    TargetPlatform.android: commonSharedXPageTransitions,
+    TargetPlatform.windows: commonSharedXPageTransitions,
+    TargetPlatform.linux: commonSharedXPageTransitions,
+    TargetPlatform.macOS: commonSharedXPageTransitions,
+  },
+);
+
+const _actionIconTheme = ActionIconThemeData(
+  backButtonIconBuilder: _backButtonIcon,
+  closeButtonIconBuilder: _closeButtonIcon,
+);
+
+Widget _backButtonIcon(BuildContext context) =>
+    GlyphIcon(AppGlyphs.backFor(Theme.of(context).platform));
+
+Widget _closeButtonIcon(BuildContext context) =>
+    const GlyphIcon(AppGlyphs.close);
+
+ThemeData buildAppTheme({
+  required ColorScheme colorScheme,
+  required TargetPlatform platform,
+  required List<Locale> locales,
+  String? fontFamily,
+}) => ThemeData(
+  useMaterial3: true,
+  platform: platform,
+  pageTransitionsTheme: _pageTransitionsTheme,
+  actionIconTheme: _actionIconTheme,
+  colorScheme: colorScheme,
+  fontFamily: fontFamily,
+  fontFamilyFallback: appFontFamilyFallback(
+    platform: platform,
+    locales: locales,
+    fontFamily: fontFamily,
+  ),
+  extensions: [
+    if (colorScheme.brightness == Brightness.dark)
+      ElevatedColorScheme(colorScheme.elevated),
+  ],
+).withAppShapes.withAppSurfaces.withAppTypography;

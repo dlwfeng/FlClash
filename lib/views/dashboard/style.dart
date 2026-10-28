@@ -1,4 +1,4 @@
-import 'package:fl_clash/common/common.dart';
+import 'format.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';
@@ -118,11 +118,12 @@ final _groupedFormat = NumberFormat.decimalPattern('en');
 
 /// Grouped digits, as the design shows them, until they outgrow a third of a
 /// phone's width.
-String dashboardCount(int count) =>
-    count < 100000 ? _groupedFormat.format(count) : count.compact;
+String dashboardCount(int count) => count < 100000
+    ? _groupedFormat.format(count)
+    : NumberFormat.compact(locale: 'en').format(count);
 
 String dashboardTraffic(num bytes) {
-  final show = bytes.traffic;
+  final show = dashboardTrafficValue(bytes);
   return '${show.value} ${show.unit}';
 }
 
