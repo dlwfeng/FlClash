@@ -48,9 +48,13 @@ app.*.map.json
 
 # Documentation (generated/planning artifacts)
 docs/
+!/docs/
+/docs/*
+!/docs/macos-web-install.md
 
 
 # Android Studio will place build artifacts here
+**/.gradle/
 /android/app/debug
 /android/app/profile
 /android/app/release
