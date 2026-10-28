@@ -15,6 +15,8 @@ Read these only when the task touches their area:
 
 - [.agents/architecture.md](.agents/architecture.md): core integration, providers, database, managers, build system, and
   local plugins.
+- [.agents/remote-control.md](.agents/remote-control.md): mandatory Web/desktop UI, interaction and animation parity,
+  remote-control boundaries, and development commands. Read before changing either shared UI or the Web client.
 - [.agents/setting-changes.md](.agents/setting-changes.md): whether a changed setting is patched live, re-applies the
   profile, or asks for an Android VPN restart.
 - [.agents/surfaces.md](.agents/surfaces.md): fill levels, selection and status colors, and the few borders that
@@ -27,6 +29,12 @@ Read these only when the task touches their area:
 - [.agents/skills.md](.agents/skills.md): index of repo-scoped skills in `.agents/skills/`.
 
 ## Highest Priority Rules
+
+- Web and desktop must use the same Flutter page, component, layout, interaction and animation implementations.
+  Sharing only themes or basic widgets does not satisfy this rule. Preserve the existing desktop UI/UX; when a Web
+  operation is unavailable, retain its original control and interaction and show an explicit localized error on use.
+  Never simplify, hide, disable or replace that UI to work around a missing backend. See
+  [.agents/remote-control.md](.agents/remote-control.md#mandatory-uiux-parity).
 
 - When the user explicitly requests a scoped, low-risk change, inspect the relevant context and implement it directly.
   Do not require brainstorming, design documents, implementation plans, multiple-option proposals, or repeated confirmation.
@@ -43,6 +51,8 @@ Read these only when the task touches their area:
   touch. Preserve
   `// ignore:`-style directives, license headers, codegen markers, and vendored upstream comments. See
   [.agents/rules.md](.agents/rules.md) for what belongs in a test or in `.agents/` instead.
+- Tests must never occupy, stop, restart or reconfigure the user's proxy on port 7890, or alter the host system proxy,
+  DNS or TUN. Use mocks and OS-assigned temporary ports (`port: 0`) for listeners; never free a port by killing its owner.
 - Start FlClash on the host only as a safe mode build, and end only processes you started, by recorded pid. Never
   kill a FlClash instance by name; the user's own instance is not yours to close. See
   [.agents/rules.md](.agents/rules.md).
@@ -66,6 +76,9 @@ Read these only when the task touches their area:
   [.agents/rules.md](.agents/rules.md).
 - Follow `lint_options.yaml` (included by every `analysis_options.yaml`), especially single quotes, trailing commas, `child:` last, no `print()`, const/final
   preferences, and declared return types.
+- Use `bash tool/flutter_locked.sh` for root-package dependency resolution, builds, runs, analysis and tests. It fixes
+  the hosted source, enforces `pubspec.lock`, and disables implicit re-resolution. Never bypass a lock mismatch to
+  finish a build or deployment; dependency upgrades require explicit scope. See `.agents/commands.md`.
 - Before reporting a change done, run `flutter pub get`, `flutter analyze --no-fatal-infos`, and the `flutter test`
   suites that cover it, as CI does. If a toolchain the build hook needs is missing (Go, and on Linux and Windows
   cargo), say which check was skipped rather than dropping it silently.

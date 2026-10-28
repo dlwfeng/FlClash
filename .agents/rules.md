@@ -554,6 +554,13 @@ failure, disposal, and any timer boundary that changes visible state.
 
 ## Running the App Locally
 
+- Tests must leave the user's proxy on port 7890 undisturbed: never bind to it, stop/restart its owner, send it
+  mutating control commands, change its configuration, or alter host system proxy, DNS or TUN settings. This applies
+  to unit/widget/integration tests, manual checks, browser tests and locally launched builds.
+- Use mocked transports for UI/API tests and `port: 0` on loopback for test listeners. Record any launched process's
+  pid and any allocated port. Read-only listener inspection is allowed; an occupied port never authorizes terminating
+  its owner or taking it over. A test that cannot meet these constraints remains unrun and is reported explicitly.
+
 - An agent starts FlClash on the host only as a safe mode build (`--dart-define=SAFE_MODE=true`, see
   `.agents/commands.md`). A normal build takes over the host network, so the user runs it, never the agent.
 - Never end a FlClash process the agent did not start, and never kill by name (`pkill`, `killall`, a pattern on the

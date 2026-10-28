@@ -12,6 +12,10 @@ dialogs, and interaction behavior.
 
 ## Conventions
 
+- Web and desktop must share full Flutter page, layout, interaction and animation implementations. Read
+  `.agents/remote-control.md#mandatory-uiux-parity` before changing shared UI or the Web client. A blocked Web function
+  retains its original UI and reports an explicit localized error on use; it does not authorize a simplified interface.
+
 - Reuse the patterns of nearby widgets, providers, notifiers, and helpers before adding an abstraction, and keep to the
   look the rest of the app has: Material You from `material_ui` as the base, with Apple's interaction conventions
   (continuous corners, sheets that snap between detents, a floating tab bar) built on Material widgets rather than

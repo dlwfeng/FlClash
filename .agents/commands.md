@@ -63,14 +63,32 @@ the hooks again. The editor and IPC socket tests still need the Rust library: ke
 on, or point `FRB_DART_LOAD_EXTERNAL_LIBRARY_NATIVE_LIB_DIR` at a directory that
 holds a `rust_api` library built from the same sources.
 
+## Locked Dependencies
+
+Build, test, analyze and run from the repository root through `bash tool/flutter_locked.sh`:
+
+```bash
+bash tool/flutter_locked.sh pub get
+bash tool/flutter_locked.sh analyze --no-fatal-infos
+bash tool/flutter_locked.sh test test/views/dashboard/
+bash tool/flutter_locked.sh run --dart-define-from-file=env.json --dart-define=SAFE_MODE=true
+```
+
+The wrapper fixes `PUB_HOSTED_URL` to `https://pub.dev`, matching the committed lockfile, resolves with
+`--enforce-lockfile`, verifies that `pubspec.lock` is unchanged, then passes `--no-pub` to Flutter. Web packaging uses
+this wrapper too. A globally configured mirror can otherwise make Pub resolve a different set of packages; implicit
+`pub get` during a build must not get a second chance to change them. A resolution mismatch stops the build before
+packaging or deployment. Do not delete the lockfile or retry without enforcement to get a build through. Dependency
+upgrades are a separate, explicitly requested change to `pubspec.yaml`/`pubspec.lock`, with review and validation.
+
 ## Flutter Development
 
 Use the default Flutter SDK directly:
 
 ```bash
-flutter pub get
-flutter run
-flutter test
+bash tool/flutter_locked.sh pub get
+bash tool/flutter_locked.sh run --dart-define=SAFE_MODE=true
+bash tool/flutter_locked.sh test
 ```
 
 Use `flutter test`, not `dart test`, because models pull in Flutter types.
