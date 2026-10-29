@@ -970,5 +970,7 @@
   "remoteConnectionLost": "연결할 수 없습니다. 앱 실행 상태와 비밀 키를 확인하세요.",
   "remoteOperationFailed": "작업에 실패했습니다.",
   "remoteUnavailable": "웹 제어를 사용할 수 없습니다. 9091 포트가 사용 중인지 확인하세요.",
-  "remoteSettingsConflict": "데스크톱에서 설정이 변경되었습니다. 양식을 다시 열어 저장하세요."
+  "remoteSettingsConflict": "데스크톱에서 설정이 변경되었습니다. 양식을 다시 열어 저장하세요.",
+  "remoteFeatureUnavailable": "웹에서는 아직 “{feature}” 기능을 사용할 수 없습니다.",
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
 }

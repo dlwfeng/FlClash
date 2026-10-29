@@ -970,5 +970,7 @@
   "remoteConnectionLost": "Cannot connect to the desktop application. Check that it is running and the secret is correct.",
   "remoteOperationFailed": "The operation failed.",
   "remoteUnavailable": "Web control is unavailable. Check whether port 9091 is already in use.",
-  "remoteSettingsConflict": "These settings changed on the desktop. Reopen this form before saving."
+  "remoteSettingsConflict": "These settings changed on the desktop. Reopen this form before saving.",
+  "remoteFeatureUnavailable": "{feature} is not available on Web yet.",
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
 }

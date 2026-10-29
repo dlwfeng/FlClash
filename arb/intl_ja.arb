@@ -970,5 +970,7 @@
   "remoteConnectionLost": "デスクトップアプリに接続できません。起動状態とシークレットを確認してください。",
   "remoteOperationFailed": "操作に失敗しました。",
   "remoteUnavailable": "Web コントロールを利用できません。ポート 9091 が使用中でないか確認してください。",
-  "remoteSettingsConflict": "デスクトップ側で設定が変更されました。フォームを開き直して保存してください。"
+  "remoteSettingsConflict": "デスクトップ側で設定が変更されました。フォームを開き直して保存してください。",
+  "remoteFeatureUnavailable": "Web では「{feature}」はまだ利用できません。",
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
 }

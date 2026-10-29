@@ -970,5 +970,7 @@
   "remoteConnectionLost": "无法连接桌面应用，请检查应用是否运行及密钥是否正确。",
   "remoteOperationFailed": "操作失败。",
   "remoteUnavailable": "Web 控制不可用，请检查 9091 端口是否被占用。",
-  "remoteSettingsConflict": "这些设置已在桌面端更改，请重新打开表单后保存。"
+  "remoteSettingsConflict": "这些设置已在桌面端更改，请重新打开表单后保存。",
+  "remoteFeatureUnavailable": "Web 端暂未实现“{feature}”。",
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
 }

@@ -970,5 +970,7 @@
   "remoteConnectionLost": "No se puede conectar. Comprueba que la aplicación esté abierta y el secreto sea correcto.",
   "remoteOperationFailed": "La operación ha fallado.",
   "remoteUnavailable": "Control web no disponible. Comprueba si el puerto 9091 está en uso.",
-  "remoteSettingsConflict": "Estos ajustes cambiaron en el escritorio. Vuelve a abrir el formulario antes de guardar."
+  "remoteSettingsConflict": "Estos ajustes cambiaron en el escritorio. Vuelve a abrir el formulario antes de guardar.",
+  "remoteFeatureUnavailable": "«{feature}» todavía no está disponible en la Web.",
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
 }

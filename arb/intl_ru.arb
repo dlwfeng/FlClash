@@ -970,5 +970,7 @@
   "remoteConnectionLost": "Не удалось подключиться. Проверьте, что приложение запущено и секрет верен.",
   "remoteOperationFailed": "Не удалось выполнить операцию.",
   "remoteUnavailable": "Веб-управление недоступно. Проверьте, не занят ли порт 9091.",
-  "remoteSettingsConflict": "Настройки изменены в настольном приложении. Откройте форму заново перед сохранением."
+  "remoteSettingsConflict": "Настройки изменены в настольном приложении. Откройте форму заново перед сохранением.",
+  "remoteFeatureUnavailable": "Функция «{feature}» пока недоступна в веб-версии.",
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
 }

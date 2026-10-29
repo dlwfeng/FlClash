@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-import 'context.dart';
+import 'package:fl_clash/l10n/context.dart';
 
 extension DateTimeExtension on DateTime {
   bool get isBeforeNow {

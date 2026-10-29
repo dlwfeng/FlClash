@@ -1,5 +1,5 @@
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/l10n/l10n.dart';
+export 'package:fl_clash/l10n/context.dart';
 import 'package:fl_clash/manager/status_manager.dart';
 import 'package:fl_clash/models/state.dart';
 import 'package:material_ui/material_ui.dart';
@@ -16,6 +16,4 @@ extension AppContextExtension on BuildContext {
       actionState: actionState,
     );
   }
-
-  AppLocalizations get appLocalizations => AppLocalizations.of(this);
 }
