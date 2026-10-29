@@ -5,6 +5,10 @@ import 'package:fl_clash/models/core.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:yaml/yaml.dart';
 
+export 'proxies.dart';
+
+import 'proxies.dart';
+
 part 'generated/clash_config.freezed.dart';
 
 part 'generated/clash_config.g.dart';
@@ -220,22 +224,6 @@ const proxyGroupTextKeys = [
   'empty-fallback',
   'icon',
 ];
-
-@freezed
-abstract class Proxy with _$Proxy {
-  const factory Proxy({
-    required String name,
-    required String type,
-    String? now,
-    @JsonKey(name: 'provider-name') String? providerName,
-  }) = _Proxy;
-
-  factory Proxy.fromJson(Map<String, Object?> json) => _$ProxyFromJson(json);
-}
-
-extension ProxyExt on Proxy {
-  List<String> get searchFields => [name, type];
-}
 
 /// The `type` values `adapter.ParseProxy` accepts, in its own order.
 const customProxyTypes = [

@@ -1,13 +1,14 @@
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/ui/color.dart';
-import 'package:material_ui/material_ui.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'app.dart';
 import 'clash_config.dart';
 import 'common.dart';
 import 'core.dart';
 import 'profile.dart';
+export 'message.dart';
+
+export 'proxies.dart';
 
 part 'generated/state.freezed.dart';
 part 'generated/state.g.dart';
@@ -15,25 +16,6 @@ part 'generated/state.g.dart';
 @freezed
 abstract class SelectValue<T> with _$SelectValue<T> {
   const factory SelectValue(T value) = _SelectValue;
-}
-
-@freezed
-abstract class CommonMessage with _$CommonMessage {
-  const factory CommonMessage({
-    required String id,
-    required String text,
-    @Default(MessageLevel.info) MessageLevel level,
-    @Default(Duration(seconds: 3)) Duration duration,
-    MessageActionState? actionState,
-  }) = _CommonMessage;
-}
-
-@freezed
-abstract class MessageActionState with _$MessageActionState {
-  const factory MessageActionState({
-    required String actionText,
-    required VoidCallback action,
-  }) = _MessageActionState;
 }
 
 @freezed
@@ -94,32 +76,6 @@ abstract class NavigationItemsState with _$NavigationItemsState {
 }
 
 @freezed
-abstract class ProxiesListState with _$ProxiesListState {
-  const factory ProxiesListState({
-    required List<Group> groups,
-    required Set<String> currentUnfoldSet,
-    required ProxyCardType proxyCardType,
-  }) = _ProxiesListState;
-}
-
-@freezed
-abstract class ProxiesTabState with _$ProxiesTabState {
-  const factory ProxiesTabState({
-    required List<Group> groups,
-    required String? currentGroupName,
-    required ProxyCardType proxyCardType,
-  }) = _ProxiesTabState;
-}
-
-@freezed
-abstract class ProxiesTabControllerState with _$ProxiesTabControllerState {
-  const factory ProxiesTabControllerState({
-    required List<String> groupNames,
-    required String? currentGroupName,
-  }) = _ProxiesTabControllerState;
-}
-
-@freezed
 abstract class MoreToolsSelectorState with _$MoreToolsSelectorState {
   const factory MoreToolsSelectorState({
     required List<NavigationItem> navigationItems,
@@ -167,15 +123,6 @@ abstract class DashboardState with _$DashboardState {
   const factory DashboardState({
     required List<DashboardWidget> dashboardWidgets,
   }) = _DashboardState;
-}
-
-@freezed
-abstract class SelectedProxyState with _$SelectedProxyState {
-  const factory SelectedProxyState({
-    required String proxyName,
-    @Default(false) bool group,
-    String? testUrl,
-  }) = _SelectedProxyState;
 }
 
 @freezed

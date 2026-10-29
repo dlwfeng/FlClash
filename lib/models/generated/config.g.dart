@@ -282,62 +282,6 @@ Map<String, dynamic> _$NetworkPropsToJson(_NetworkProps instance) =>
       'authentication': instance.authentication,
     };
 
-_ProxiesStyleProps _$ProxiesStylePropsFromJson(Map<String, dynamic> json) =>
-    _ProxiesStyleProps(
-      type:
-          $enumDecodeNullable(_$ProxiesTypeEnumMap, json['type']) ??
-          ProxiesType.list,
-      sortType:
-          $enumDecodeNullable(_$ProxiesSortTypeEnumMap, json['sortType']) ??
-          ProxiesSortType.none,
-      layout:
-          $enumDecodeNullable(_$ProxiesLayoutEnumMap, json['layout']) ??
-          ProxiesLayout.standard,
-      iconStyle: json['iconStyle'] == null
-          ? ProxiesIconStyle.filled
-          : proxiesIconStyleSafeFromJson(json['iconStyle']),
-      cardType: json['cardType'] == null
-          ? ProxyCardType.standard
-          : proxyCardTypeSafeFromJson(json['cardType']),
-      hideTimeoutProxies: json['hideTimeoutProxies'] as bool? ?? false,
-    );
-
-Map<String, dynamic> _$ProxiesStylePropsToJson(_ProxiesStyleProps instance) =>
-    <String, dynamic>{
-      'type': _$ProxiesTypeEnumMap[instance.type]!,
-      'sortType': _$ProxiesSortTypeEnumMap[instance.sortType]!,
-      'layout': _$ProxiesLayoutEnumMap[instance.layout]!,
-      'iconStyle': _$ProxiesIconStyleEnumMap[instance.iconStyle]!,
-      'cardType': _$ProxyCardTypeEnumMap[instance.cardType]!,
-      'hideTimeoutProxies': instance.hideTimeoutProxies,
-    };
-
-const _$ProxiesTypeEnumMap = {ProxiesType.tab: 'tab', ProxiesType.list: 'list'};
-
-const _$ProxiesSortTypeEnumMap = {
-  ProxiesSortType.none: 'none',
-  ProxiesSortType.delay: 'delay',
-  ProxiesSortType.name: 'name',
-};
-
-const _$ProxiesLayoutEnumMap = {
-  ProxiesLayout.loose: 'loose',
-  ProxiesLayout.standard: 'standard',
-  ProxiesLayout.tight: 'tight',
-};
-
-const _$ProxiesIconStyleEnumMap = {
-  ProxiesIconStyle.filled: 'filled',
-  ProxiesIconStyle.plain: 'plain',
-  ProxiesIconStyle.hidden: 'hidden',
-};
-
-const _$ProxyCardTypeEnumMap = {
-  ProxyCardType.loose: 'loose',
-  ProxyCardType.standard: 'standard',
-  ProxyCardType.compact: 'compact',
-};
-
 _TextScale _$TextScaleFromJson(Map<String, dynamic> json) => _TextScale(
   enable: json['enable'] as bool? ?? false,
   scale: (json['scale'] as num?)?.toDouble() ?? 1.0,

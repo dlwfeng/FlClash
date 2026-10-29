@@ -1,75 +1,21 @@
 // ignore_for_file: constant_identifier_names
 
-import 'dart:io';
-
 import 'package:fl_clash/common/context.dart';
-import 'package:fl_clash/common/system.dart';
-import 'package:fl_clash/ui/color.dart';
-import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/ui/surface.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-enum SupportPlatform {
-  Windows,
-  MacOS,
-  Linux,
-  Android;
-
-  static SupportPlatform get currentPlatform {
-    if (system.isWindows) {
-      return SupportPlatform.Windows;
-    } else if (system.isMacOS) {
-      return SupportPlatform.MacOS;
-    } else if (Platform.isLinux) {
-      return SupportPlatform.Linux;
-    } else if (system.isAndroid) {
-      return SupportPlatform.Android;
-    }
-    throw UnsupportedError('Unsupported platform: ${Platform.operatingSystem}');
-  }
-}
-
-const desktopPlatforms = [
-  SupportPlatform.Linux,
-  SupportPlatform.MacOS,
-  SupportPlatform.Windows,
-];
+export 'proxies.dart';
+export 'platform.dart';
+export 'dashboard.dart';
+export 'dns.dart';
+export 'core_status.dart';
+export 'record.dart';
+export 'message.dart';
+export 'traffic.dart';
+export 'ip_quality.dart';
 
 enum GroupName { GLOBAL }
-
-enum GroupType {
-  @JsonValue('select')
-  Selector('select'),
-  @JsonValue('url-test')
-  URLTest('url-test'),
-  @JsonValue('fallback')
-  Fallback('fallback'),
-  @JsonValue('load-balance')
-  LoadBalance('load-balance'),
-  @JsonValue('relay')
-  Relay('relay');
-
-  final String value;
-
-  const GroupType(this.value);
-
-  static GroupType parse(String type) {
-    return switch (type.toLowerCase()) {
-      'url-test' || 'urltest' => URLTest,
-      'select' || 'selector' => Selector,
-      'fallback' => Fallback,
-      'load-balance' || 'loadbalance' => LoadBalance,
-      'relay' => Relay,
-      String() => throw UnimplementedError(),
-    };
-  }
-
-  /// The core refuses a relay group, so it stays parseable but unofferable.
-  static List<GroupType> get selectableValues =>
-      values.where((item) => item != Relay).toList();
-}
 
 enum LoadBalanceStrategy {
   @JsonValue('consistent-hashing')
@@ -98,112 +44,11 @@ enum IpVersion {
   const IpVersion(this.value);
 }
 
-extension GroupTypeExtension on GroupType {
-  static List<String> get valueList =>
-      GroupType.values.map((e) => e.toString().split('.').last).toList();
-
-  bool get isComputedSelected {
-    return [GroupType.URLTest, GroupType.Fallback].contains(this);
-  }
-
-  static GroupType? getGroupType(String value) {
-    final index = GroupTypeExtension.valueList.indexOf(value);
-    if (index == -1) return null;
-    return GroupType.values[index];
-  }
-}
-
-enum DelayTestPhase { queued, running }
-
 enum Mode { rule, global, direct }
-
-enum ViewMode { mobile, laptop, desktop }
 
 enum LogLevel { debug, info, warning, error, silent }
 
-enum RecordTone { neutral, warning, error }
-
-extension RecordToneExt on RecordTone {
-  Color? accentColor(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      RecordTone.warning => colorScheme.warning,
-      RecordTone.error => colorScheme.error,
-      RecordTone.neutral => null,
-    };
-  }
-
-  Color labelColor(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      RecordTone.neutral => colorScheme.onSurfaceVariant,
-      RecordTone.warning => colorScheme.onWarningContainer,
-      RecordTone.error => colorScheme.onErrorContainer,
-    };
-  }
-
-  Color labelContainerColor(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      RecordTone.neutral => context.raisedSurfaceLevel.colorOf(colorScheme),
-      RecordTone.warning => colorScheme.warningContainer,
-      RecordTone.error => colorScheme.errorContainer,
-    };
-  }
-}
-
-enum MessageLevel { info, success, warning, error }
-
-extension MessageLevelExt on MessageLevel {
-  Glyph? get glyph {
-    return switch (this) {
-      MessageLevel.info => null,
-      MessageLevel.success => AppGlyphs.checkCircle,
-      MessageLevel.warning => AppGlyphs.warning,
-      MessageLevel.error => AppGlyphs.error,
-    };
-  }
-
-  Color containerColor(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      MessageLevel.error => colorScheme.errorContainer,
-      _ => SurfaceLevel.floatingOf(colorScheme).colorOf(colorScheme),
-    };
-  }
-
-  Color contentColor(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      MessageLevel.error => colorScheme.onErrorContainer,
-      _ => colorScheme.onSurfaceVariant,
-    };
-  }
-
-  Color iconColor(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return switch (this) {
-      MessageLevel.info => colorScheme.onSurfaceVariant,
-      MessageLevel.success => colorScheme.success,
-      MessageLevel.warning => colorScheme.warning,
-      MessageLevel.error => colorScheme.onErrorContainer,
-    };
-  }
-
-  Duration get duration {
-    return switch (this) {
-      MessageLevel.info || MessageLevel.success => const Duration(seconds: 3),
-      MessageLevel.warning => const Duration(seconds: 5),
-      MessageLevel.error => const Duration(seconds: 6),
-    };
-  }
-}
-
-enum TrafficUnit { B, KB, MB, GB, TB }
-
 enum NavigationItemMode { mobile, desktop, more, moreFull }
-
-enum ProxiesSortType { none, delay, name }
 
 enum TunStack { gvisor, system, mixed, mips }
 
@@ -238,21 +83,6 @@ enum FindProcessMode { always, off }
 enum InterfaceNameMode { clear, follow, custom }
 
 enum RestoreOption { all, onlyProfiles }
-
-enum ProxiesType { tab, list }
-
-enum ProxiesLayout { loose, standard, tight }
-
-enum ProxyCardType { loose, standard, compact }
-
-enum DnsMode {
-  normal,
-  @JsonValue('fake-ip')
-  fakeIp,
-  @JsonValue('redir-host')
-  redirHost,
-  hosts,
-}
 
 enum DnsCacheAlgorithm { lru, arc }
 
@@ -444,8 +274,6 @@ enum HotAction {
   exit,
 }
 
-enum ProxiesIconStyle { filled, plain, hidden }
-
 enum EditorFontSize {
   standard(16),
   large(18),
@@ -479,45 +307,6 @@ enum FunctionTag {
   reloadPackages,
   clearDnsCache,
 }
-
-enum DashboardWidget {
-  currentOutbound,
-  networkSpeed,
-  outboundMode,
-  vpnButton(platforms: [SupportPlatform.Android]),
-  networkTakeover(platforms: desktopPlatforms),
-  serviceStatus,
-  profiles,
-  proxyGroups,
-  connectionStats,
-  intranetIp,
-  memoryInfo;
-
-  final List<SupportPlatform> platforms;
-
-  const DashboardWidget({this.platforms = SupportPlatform.values});
-}
-
-enum DnsQueryInitiator { app, rule, direct, proxy, other }
-
-enum IpType { residential, mobile, business, hosting }
-
-enum IpQualityLevel { good, normal, risky }
-
-enum IpQualitySource {
-  identMe('ident.me'),
-  ipApiCom('ip-api.com'),
-  ipQuery('ipquery.io'),
-  ipLocate('iplocate.io'),
-  proxyCheck('proxycheck.io'),
-  ipApiIs('ipapi.is');
-
-  const IpQualitySource(this.label);
-
-  final String label;
-}
-
-enum IpQualitySourceStatus { noType, timeout, rateLimited, failed, ipMismatch }
 
 enum GeodataLoader { standard, memconservative }
 
@@ -873,7 +662,5 @@ enum LoadingTag {
   proxies,
   checkUpdate,
 }
-
-enum CoreStatus { connecting, connected, disconnected }
 
 enum UpdatingScope { core, local }

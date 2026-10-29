@@ -89,20 +89,6 @@ const _$LoadBalanceStrategyEnumMap = {
   LoadBalanceStrategy.stickySessions: 'sticky-sessions',
 };
 
-_Proxy _$ProxyFromJson(Map<String, dynamic> json) => _Proxy(
-  name: json['name'] as String,
-  type: json['type'] as String,
-  now: json['now'] as String?,
-  providerName: json['provider-name'] as String?,
-);
-
-Map<String, dynamic> _$ProxyToJson(_Proxy instance) => <String, dynamic>{
-  'name': instance.name,
-  'type': instance.type,
-  'now': instance.now,
-  'provider-name': instance.providerName,
-};
-
 _CustomProxy _$CustomProxyFromJson(Map<String, dynamic> json) => _CustomProxy(
   id: Snowflake.buildId((json['id'] as num?)?.toInt()),
   definition: json['definition'] as Map<String, dynamic>? ?? const {},

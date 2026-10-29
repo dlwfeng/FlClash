@@ -1,3 +1,6 @@
+export 'package:fl_clash/enum/dns_labels.dart';
+export 'package:fl_clash/enum/proxies_labels.dart';
+
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/ui/color.dart';
 import 'package:material_ui/material_ui.dart';
@@ -21,19 +24,6 @@ extension PageLabelL10n on PageLabel {
   }
 }
 
-extension DnsQueryInitiatorL10n on DnsQueryInitiator {
-  String get label {
-    final appLocalizations = currentAppLocalizations;
-    return switch (this) {
-      DnsQueryInitiator.app => appLocalizations.app,
-      DnsQueryInitiator.rule => appLocalizations.rule,
-      DnsQueryInitiator.direct => appLocalizations.direct,
-      DnsQueryInitiator.proxy => appLocalizations.proxies,
-      DnsQueryInitiator.other => appLocalizations.other,
-    };
-  }
-}
-
 extension ModeL10n on Mode {
   String get label {
     final appLocalizations = currentAppLocalizations;
@@ -41,27 +31,6 @@ extension ModeL10n on Mode {
       Mode.rule => appLocalizations.rule,
       Mode.global => appLocalizations.global,
       Mode.direct => appLocalizations.direct,
-    };
-  }
-}
-
-extension ProxiesTypeL10n on ProxiesType {
-  String get label {
-    final appLocalizations = currentAppLocalizations;
-    return switch (this) {
-      ProxiesType.tab => appLocalizations.tab,
-      ProxiesType.list => appLocalizations.list,
-    };
-  }
-}
-
-extension ProxyCardTypeL10n on ProxyCardType {
-  String get label {
-    final appLocalizations = currentAppLocalizations;
-    return switch (this) {
-      ProxyCardType.loose => appLocalizations.loose,
-      ProxyCardType.standard => appLocalizations.standard,
-      ProxyCardType.compact => appLocalizations.compact,
     };
   }
 }

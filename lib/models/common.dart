@@ -9,7 +9,9 @@ import 'package:fl_clash/ui/icons/glyph.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-import 'clash_config.dart';
+export 'proxies.dart';
+export 'feeds.dart';
+export 'traffic.dart';
 
 part 'generated/common.freezed.dart';
 
@@ -79,103 +81,6 @@ extension PackagesExt on List<Package> {
   }
 }
 
-@freezed
-abstract class Metadata with _$Metadata {
-  const factory Metadata({
-    @Default(0) int uid,
-    @Default('') String network,
-    @Default('') String sourceIP,
-    @Default('') String sourcePort,
-    @Default('') String destinationIP,
-    @Default('') String destinationPort,
-    @Default('') String host,
-    DnsMode? dnsMode,
-    @Default('') String process,
-    @Default('') String processPath,
-    @Default('') String remoteDestination,
-    @Default([]) List<String> sourceGeoIP,
-    @Default([]) List<String> destinationGeoIP,
-    @Default('') String destinationIPASN,
-    @Default('') String sourceIPASN,
-    @Default('') String specialRules,
-    @Default('') String specialProxy,
-  }) = _Metadata;
-
-  factory Metadata.fromJson(Map<String, Object?> json) =>
-      _$MetadataFromJson(json);
-}
-
-@freezed
-abstract class TrackerInfo with _$TrackerInfo {
-  const factory TrackerInfo({
-    required String id,
-    @Default(0) int upload,
-    @Default(0) int download,
-    required DateTime start,
-    required Metadata metadata,
-    required List<String> chains,
-    required String rule,
-    required String rulePayload,
-    int? downloadSpeed,
-    int? uploadSpeed,
-  }) = _TrackerInfo;
-
-  factory TrackerInfo.fromJson(Map<String, Object?> json) =>
-      _$TrackerInfoFromJson(json);
-}
-
-/// Reads the Core's `getConnections` answer.
-List<TrackerInfo> trackerInfosOf(Object? data) {
-  final connections = data is Map ? data['connections'] : null;
-  if (connections is! List) {
-    return const [];
-  }
-  return [
-    for (final item in connections.whereType<Map>())
-      TrackerInfo.fromJson(Map<String, Object?>.from(item)),
-  ];
-}
-
-typedef RequestTraffic = ({int upload, int download});
-
-extension TrackerInfoExt on TrackerInfo {
-  String get title {
-    final host = metadata.host;
-    if (host.isNotEmpty) {
-      return host;
-    }
-    return metadata.destinationIP;
-  }
-
-  String get progressText {
-    final process = metadata.process;
-    final uid = metadata.uid;
-    if (uid != 0) {
-      return '$process($uid)'.trim();
-    }
-    return process.trim();
-  }
-
-  List<String> get searchFields => [
-    metadata.network,
-    metadata.host,
-    metadata.destinationIP,
-    metadata.destinationPort,
-    metadata.sourceIP,
-    metadata.sourcePort,
-    metadata.process,
-    metadata.processPath,
-    metadata.remoteDestination,
-    metadata.destinationIPASN,
-    ...metadata.destinationGeoIP,
-    metadata.specialProxy,
-    metadata.specialRules,
-    rule,
-    rulePayload,
-    ...chains,
-  ];
-}
-
 String _logDateTime(dynamic _) {
   return DateTime.now().showFull;
 }
@@ -224,116 +129,6 @@ extension LogsStateExt on LogsState {
           (log) => [log.payload, log.logLevel.name],
           texts: _logSearchTexts,
         )
-        .toList();
-  }
-}
-
-@freezed
-abstract class TrackerInfosState with _$TrackerInfosState {
-  const factory TrackerInfosState({
-    @Default([]) List<TrackerInfo> trackerInfos,
-    @Default([]) List<String> keywords,
-    @Default('') String query,
-    @Default(true) bool autoScrollToEnd,
-  }) = _TrackerInfosState;
-}
-
-final _trackerInfoSearchTexts = Expando<String>();
-
-extension TrackerInfosStateExt on TrackerInfosState {
-  bool get isSearching => keywords.isNotEmpty || SearchQuery(query).isNotEmpty;
-
-  List<TrackerInfo> get list {
-    final searchQuery = SearchQuery(query);
-    if (keywords.isEmpty && searchQuery.isEmpty) {
-      return trackerInfos;
-    }
-    return trackerInfos
-        .where(
-          (trackerInfo) => keywords.every(
-            (keyword) =>
-                keyword == trackerInfo.metadata.process ||
-                trackerInfo.chains.contains(keyword),
-          ),
-        )
-        .whereMatches(
-          searchQuery,
-          (trackerInfo) => trackerInfo.searchFields,
-          texts: _trackerInfoSearchTexts,
-        )
-        .toList();
-  }
-}
-
-@freezed
-abstract class DnsQuery with _$DnsQuery {
-  const factory DnsQuery({
-    required String domain,
-    required String type,
-    @JsonKey(unknownEnumValue: JsonKey.nullForUndefinedEnumValue)
-    DnsQueryInitiator? initiator,
-    @Default('') String upstream,
-    @Default(false) bool cached,
-    @Default([]) List<String> answers,
-    @Default('') String rcode,
-    @Default('') String error,
-    @Default(0) int delay,
-    required DateTime time,
-  }) = _DnsQuery;
-
-  factory DnsQuery.fromJson(Map<String, Object?> json) =>
-      _$DnsQueryFromJson(json);
-}
-
-extension DnsQueryExt on DnsQuery {
-  bool get hasFailureRcode => rcode.isNotEmpty && rcode != 'NOERROR';
-
-  bool get isFailed => error.isNotEmpty || hasFailureRcode;
-
-  String get summary => error.isNotEmpty ? error : answers.join(', ');
-
-  List<String> get tags => [type, ...resultTags];
-
-  List<String> get resultTags {
-    final initiator = this.initiator;
-    return [
-      if (initiator != null) initiator.label,
-      if (cached) currentAppLocalizations.cache,
-      if (hasFailureRcode) rcode,
-    ];
-  }
-
-  List<String> get searchFields => [
-    domain,
-    ...tags,
-    rcode,
-    upstream,
-    error,
-    ...answers,
-  ];
-}
-
-@freezed
-abstract class DnsQueriesState with _$DnsQueriesState {
-  const factory DnsQueriesState({
-    @Default([]) List<DnsQuery> dnsQueries,
-    @Default([]) List<String> keywords,
-    @Default('') String query,
-    @Default(true) bool autoScrollToEnd,
-  }) = _DnsQueriesState;
-}
-
-extension DnsQueriesStateExt on DnsQueriesState {
-  bool get isSearching => keywords.isNotEmpty || SearchQuery(query).isNotEmpty;
-
-  List<DnsQuery> get list {
-    final searchQuery = SearchQuery(query);
-    if (keywords.isEmpty && searchQuery.isEmpty) {
-      return dnsQueries;
-    }
-    return dnsQueries
-        .where((dnsQuery) => keywords.every(dnsQuery.tags.contains))
-        .whereMatches(searchQuery, (dnsQuery) => dnsQuery.searchFields)
         .toList();
   }
 }
@@ -480,54 +275,7 @@ extension TrafficExt on Traffic {
   num get speed => up + down;
 }
 
-@freezed
-abstract class TrafficShow with _$TrafficShow {
-  const factory TrafficShow({required String value, required String unit}) =
-      _TrafficShow;
-}
 
-extension TrafficShowExt on TrafficShow {
-  String get show => '$value$unit';
-}
-
-@freezed
-abstract class Group with _$Group {
-  const factory Group({
-    @JsonKey(fromJson: GroupType.parse) required GroupType type,
-    @Default([]) List<Proxy> all,
-    String? now,
-    bool? hidden,
-    String? testUrl,
-    @Default('') String icon,
-    required String name,
-  }) = _Group;
-
-  factory Group.fromJson(Map<String, Object?> json) => _$GroupFromJson(json);
-}
-
-final _groupsByName = Expando<Map<String, Group>>();
-
-extension GroupsExt on List<Group> {
-  /// Indexed once per list, so a list must not change after its first lookup.
-  Group? getGroup(String groupName) => (_groupsByName[this] ??= {
-    for (final group in this) group.name: group,
-  })[groupName];
-}
-
-extension GroupExt on Group {
-  String get realNow => now ?? '';
-
-  String getCurrentSelectedName(String proxyName) {
-    if (type.isComputedSelected) {
-      return realNow.isNotEmpty ? realNow : proxyName;
-    }
-    return proxyName.isNotEmpty && _isMember(proxyName) ? proxyName : realNow;
-  }
-
-  /// A saved pick outlives a subscription update that renames or drops it.
-  bool _isMember(String proxyName) =>
-      all.isEmpty || all.any((proxy) => proxy.name == proxyName);
-}
 
 @freezed
 abstract class IpInfo with _$IpInfo {
@@ -937,33 +685,6 @@ bool _isHttpUrl(String value) {
   }
   final name = document['name'];
   return (name: name is String ? name.trim() : '', icons: icons);
-}
-
-@freezed
-abstract class DelayState with _$DelayState {
-  const factory DelayState({required int delay, required bool group}) =
-      _DelayState;
-}
-
-extension DelayStateExt on DelayState {
-  int get priority {
-    if (delay > 0) return 0;
-    if (delay == 0) return 1;
-    if (delay == delayTimedOutValue) return 2;
-    return 3;
-  }
-
-  int compareTo(DelayState other) {
-    if (priority != other.priority) {
-      return priority.compareTo(other.priority);
-    }
-    if (delay != other.delay) {
-      return delay.compareTo(other.delay);
-    }
-    if (group && !other.group) return -1;
-    if (!group && other.group) return 1;
-    return 0;
-  }
 }
 
 @freezed

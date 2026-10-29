@@ -2,6 +2,8 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+export 'memory.dart';
+
 part 'generated/core.freezed.dart';
 part 'generated/core.g.dart';
 
@@ -312,23 +314,6 @@ abstract class ServiceCheckItem with _$ServiceCheckItem {
       _$ServiceCheckItemFromJson(json);
 }
 
-@freezed
-abstract class CoreMemoryStats with _$CoreMemoryStats {
-  const factory CoreMemoryStats({
-    @Default(0) int rss,
-    @Default(0) int heapInuse,
-    @Default(0) int heapIdle,
-    @Default(0) int stackInuse,
-    @Default(0) int runtimeOther,
-  }) = _CoreMemoryStats;
-
-  factory CoreMemoryStats.fromJson(Map<String, Object?> json) =>
-      _$CoreMemoryStatsFromJson(json);
-}
-
-extension CoreMemoryStatsExt on CoreMemoryStats {
-  int get runtimeTotal => heapInuse + heapIdle + stackInuse + runtimeOther;
-}
 
 SubscriptionInfo? subscriptionInfoFormCore(Map<String, Object?>? json) {
   if (json == null) return null;

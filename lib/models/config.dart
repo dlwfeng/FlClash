@@ -7,6 +7,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 import 'models.dart';
 
+export 'proxies.dart';
+
 part 'generated/config.freezed.dart';
 part 'generated/config.g.dart';
 
@@ -83,7 +85,6 @@ const defaultAppSettingProps = AppSettingProps();
 const defaultVpnProps = VpnProps();
 const defaultAuthenticationProps = AuthenticationProps();
 const defaultNetworkProps = NetworkProps();
-const defaultProxiesStyleProps = ProxiesStyleProps();
 const defaultWindowProps = WindowProps();
 const defaultAccessControlProps = AccessControlProps();
 const defaultThemeProps = ThemeProps(primaryColor: defaultPrimaryColor);
@@ -392,47 +393,6 @@ abstract class NetworkProps with _$NetworkProps {
 
   factory NetworkProps.fromJson(Map<String, Object?>? json) =>
       json == null ? const NetworkProps() : _$NetworkPropsFromJson(json);
-}
-
-/// Reads the styles named `standard`, `icon` and `none` before they became
-/// [ProxiesIconStyle.filled], [ProxiesIconStyle.plain] and
-/// [ProxiesIconStyle.hidden].
-ProxiesIconStyle proxiesIconStyleSafeFromJson(Object? iconStyle) {
-  return switch (iconStyle) {
-    'filled' || 'standard' => ProxiesIconStyle.filled,
-    'plain' || 'icon' => ProxiesIconStyle.plain,
-    'hidden' || 'none' => ProxiesIconStyle.hidden,
-    _ => ProxiesIconStyle.filled,
-  };
-}
-
-ProxyCardType proxyCardTypeSafeFromJson(Object? cardType) {
-  return switch (cardType) {
-    'loose' || 'expand' => ProxyCardType.loose,
-    'standard' || 'shrink' => ProxyCardType.standard,
-    'compact' || 'min' => ProxyCardType.compact,
-    _ => ProxyCardType.standard,
-  };
-}
-
-@freezed
-abstract class ProxiesStyleProps with _$ProxiesStyleProps {
-  const factory ProxiesStyleProps({
-    @Default(ProxiesType.list) ProxiesType type,
-    @Default(ProxiesSortType.none) ProxiesSortType sortType,
-    @Default(ProxiesLayout.standard) ProxiesLayout layout,
-    @Default(ProxiesIconStyle.filled)
-    @JsonKey(fromJson: proxiesIconStyleSafeFromJson)
-    ProxiesIconStyle iconStyle,
-    @Default(ProxyCardType.standard)
-    @JsonKey(fromJson: proxyCardTypeSafeFromJson)
-    ProxyCardType cardType,
-    @Default(false) bool hideTimeoutProxies,
-  }) = _ProxiesStyleProps;
-
-  factory ProxiesStyleProps.fromJson(Map<String, Object?>? json) => json == null
-      ? defaultProxiesStyleProps
-      : _$ProxiesStylePropsFromJson(json);
 }
 
 @freezed

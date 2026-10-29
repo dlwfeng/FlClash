@@ -6,9 +6,9 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'common.dart';
 import 'core.dart';
 
-part 'generated/app.freezed.dart';
+export 'proxies.dart';
 
-typedef DelayMap = Map<String, Map<String, int?>>;
+part 'generated/app.freezed.dart';
 
 @Freezed(toStringOverride: false)
 abstract class AppState with _$AppState {
