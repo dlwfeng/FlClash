@@ -1,5 +1,7 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/models/models.dart';
+import 'package:fl_clash/common/datetime.dart';
+import 'package:fl_clash/l10n/context.dart';
+import 'package:fl_clash/common/traffic_format.dart';
+import 'package:fl_clash/models/subscription.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -33,8 +35,8 @@ class SubscriptionInfoView extends StatelessWidget {
     final total = info.total;
     final progress = (use / total).clamp(0.0, 1.0).toDouble();
 
-    final useShow = use.traffic.show;
-    final totalShow = total.traffic.show;
+    final useShow = _traffic(use);
+    final totalShow = _traffic(total);
     final expireShow = info.expire != 0
         ? DateTime.fromMillisecondsSinceEpoch(info.expire * 1000).show
         : context.appLocalizations.infiniteTime;
@@ -117,11 +119,11 @@ class SubscriptionInfoDetailView extends StatelessWidget {
             items: [
               _buildItem(
                 label: appLocalizations.usedTraffic,
-                value: used.traffic.show,
+                value: _traffic(used),
               ),
               _buildItem(
                 label: appLocalizations.totalTraffic,
-                value: subscriptionInfo.total.traffic.show,
+                value: _traffic(subscriptionInfo.total),
               ),
             ],
           ),
@@ -133,4 +135,9 @@ class SubscriptionInfoDetailView extends StatelessWidget {
       ),
     );
   }
+}
+
+String _traffic(num bytes) {
+  final value = dashboardTrafficValue(bytes);
+  return '${value.value}${value.unit}';
 }

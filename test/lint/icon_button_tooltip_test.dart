@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 
 /// The one button that carries its label on an enclosing [Tooltip] instead of
 /// its own `tooltip:`. Nesting a second tooltip inside would fight it.
-const _wrappedInTooltip = 'lib/views/dashboard/widgets/core_status_button.dart';
+const _wrappedInTooltip = 'lib/views/dashboard/widgets/core_status_button_view.dart';
 
 final _iconButton = RegExp(
   r'\bIconButton(?:\.(?:filled|filledTonal|outlined))?\(',

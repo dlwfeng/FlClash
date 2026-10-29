@@ -1,11 +1,7 @@
+import 'dependencies.dart';
 import 'dart:async';
 import 'dart:math';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/common.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -87,7 +83,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
       proxies: group.all,
       selectedProxyName: ref.read(selectedProxyNameProvider(group.name)),
       columns: _columns,
-      rowExtent: getRowExtent(cardType),
+      rowExtent: getRowExtent(cardType, context),
     );
     if (rowOffset == null) {
       return;
@@ -100,9 +96,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
     if (group == null) {
       return;
     }
-    await ref
-        .read(proxiesActionProvider.notifier)
-        .delayTestPageGroup(group.name);
+    await ref.read(proxyPageActionsProvider).delayTestPageGroup(group.name);
   }
 
   Group? get currentGroup {
@@ -126,9 +120,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
       if (!mounted) {
         return;
       }
-      ref
-          .read(proxiesActionProvider.notifier)
-          .updateCurrentGroupName(group.name);
+      ref.read(proxyPageActionsProvider).updateCurrentGroupName(group.name);
     });
   }
 
@@ -159,7 +151,6 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
   @override
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
-    ref.watch(themeSettingProvider.select((state) => state.textScale));
     final groups = ref.watch(
       proxiesTabStateProvider.select((state) => state.groups),
     );
@@ -170,9 +161,7 @@ class ProxiesTabViewState extends ConsumerState<ProxiesTabView>
       proxiesStyleSettingProvider.select((state) => state.layout),
     );
     final isSearching = ref.watch(
-      queryProvider(
-        QueryTag.proxies,
-      ).select((query) => SearchQuery(query).isNotEmpty),
+      proxySearchProvider.select((query) => SearchQuery(query).isNotEmpty),
     );
     _pruneScrollControllers(groups);
     final controller = _tabController;
@@ -241,9 +230,8 @@ class ProxyGroupView extends ConsumerWidget {
   });
 
   PageStorageKey _getPageStorageKey(WidgetRef ref) {
-    final profile = ref.read(currentProfileProvider);
-    final key =
-        '${profile?.id}_${ScrollPositionCacheKey.proxiesTabList.name}_${group.name}';
+    final profileId = ref.read(proxyProfileIdProvider);
+    final key = '${profileId}_proxiesTabList_${group.name}';
     return ProxiesTabView.pageListStoreMap.updateCacheValue(
       key,
       () => PageStorageKey(key),
@@ -268,7 +256,7 @@ class ProxyGroupView extends ConsumerWidget {
           crossAxisCount: columns,
           mainAxisSpacing: proxyGridSpacing,
           crossAxisSpacing: 8,
-          mainAxisExtent: getItemHeight(cardType),
+          mainAxisExtent: getItemHeight(cardType, context),
         ),
         itemCount: proxies.length,
         addAutomaticKeepAlives: false,

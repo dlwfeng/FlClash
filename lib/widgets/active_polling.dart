@@ -1,7 +1,8 @@
 import 'dart:async';
 
-import 'package:fl_clash/common/print.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'polling_log_native.dart'
+    if (dart.library.js_interop) 'polling_log_web.dart'
+    as platform;
 import 'package:fl_clash/ui/inherited.dart';
 import 'package:flutter/widgets.dart';
 
@@ -120,10 +121,7 @@ mixin ActivePollingMixin<T extends StatefulWidget>
     try {
       await poll(() => _isCurrentPoll(generation));
     } catch (error) {
-      commonPrint.log(
-        '$runtimeType poll error: $error',
-        logLevel: LogLevel.warning,
-      );
+      platform.logPollingFailure(runtimeType, error);
     } finally {
       if (_isCurrentPoll(generation)) {
         _schedulePoll(generation);

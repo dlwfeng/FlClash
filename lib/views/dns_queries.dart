@@ -1,10 +1,6 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/features/connection/feed_dependencies.dart';
+import 'package:fl_clash/features/connection/feed_bindings.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/services.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -87,7 +83,7 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
   }
 
   void _updateDnsQueriesThrottler() {
-    throttler.call(FunctionTag.dnsQueries, () {
+    feedThrottler.call('dns', () {
       if (!mounted) {
         return;
       }
@@ -103,19 +99,16 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
     try {
       cleared = await ref.read(coreHandlerProvider).clearDnsCache();
     } catch (error) {
-      commonPrint.log(
-        'clearDnsCache error: $error',
-        logLevel: coreFailureLogLevel(error),
-      );
+      logFeedFailure('clearDnsCache', error);
     }
     if (!mounted) {
       return;
     }
-    context.showNotifier(
+    showFeedMessage(context,
       cleared
           ? appLocalizations.dnsCacheCleared
           : appLocalizations.clearDnsCacheFailed,
-      level: cleared ? MessageLevel.success : MessageLevel.error,
+      success: cleared,
     );
   }
 
@@ -123,7 +116,7 @@ class _DnsQueriesViewState extends ConsumerState<DnsQueriesView>
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return CommonScaffold(
-      title: PageLabel.dns.label,
+      title: appLocalizations.dnsQueries,
       searchState: AppBarSearchState(onSearch: _listController.search),
       onKeywordsUpdate: _listController.updateKeywords,
       iconActions: [
@@ -459,7 +452,7 @@ class DnsQueryDetailView extends StatelessWidget {
 Future<void> _copy(BuildContext context, String text) async {
   await Clipboard.setData(ClipboardData(text: text));
   if (!context.mounted) return;
-  context.showNotifier(context.appLocalizations.copySuccess);
+  showFeedMessage(context, context.appLocalizations.copySuccess);
 }
 
 class _ErrorRow extends StatelessWidget {

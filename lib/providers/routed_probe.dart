@@ -7,11 +7,13 @@ import 'package:fl_clash/models/models.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod/riverpod.dart';
 
-import 'app.dart';
+import 'package:fl_clash/enum/probe.dart';
+import 'probe_activity.dart';
 import 'core.dart';
 import 'route_state.dart';
 
-enum ProbePhase { empty, probing, fresh, failed }
+export 'package:fl_clash/enum/probe.dart';
+
 
 @immutable
 class ProbeEntry<V> {
@@ -129,7 +131,7 @@ mixin RoutedProbe<K, V>
     });
     _route = ref.read(routeTrackerProvider);
     ref.listen(routeTrackerProvider, _onRoute);
-    ref.listen(appVisibleProvider, (_, visible) {
+    ref.listen(probeActivityProvider, (_, visible) {
       if (!visible) {
         return;
       }
@@ -227,7 +229,7 @@ mixin RoutedProbe<K, V>
 
   void _launch() {
     _scheduled = false;
-    if (!ref.mounted || !_route.live || !ref.read(appVisibleProvider)) {
+    if (!ref.mounted || !_route.live || !ref.read(probeActivityProvider)) {
       return;
     }
     final route = _route;
@@ -431,7 +433,7 @@ mixin RoutedProbe<K, V>
       _reverify = true;
       return;
     }
-    if (!ref.mounted || !_route.live || !ref.read(appVisibleProvider)) {
+    if (!ref.mounted || !_route.live || !ref.read(probeActivityProvider)) {
       return;
     }
     final stamps = <K, RouteStamp>{};

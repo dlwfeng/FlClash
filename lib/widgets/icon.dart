@@ -1,13 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
+import 'icon_loader_native.dart'
+    if (dart.library.js_interop) 'icon_loader_web.dart';
 
-import 'package:fl_clash/common/cache.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/plugins/app.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_svg/svg.dart';
 
 const _maxCachedIconBytes = 16 << 20;
@@ -69,7 +68,13 @@ Uint8List? _decodeIcon(String src) {
   if (_decodedIcons.contains(src)) {
     return _decodedIcons[src];
   }
-  return _decodedIcons[src] = src.getBase64;
+  try {
+    return _decodedIcons[src] = base64Decode(
+      src.substring(src.indexOf('base64,') + 7),
+    );
+  } on FormatException {
+    return _decodedIcons[src] = null;
+  }
 }
 
 class CommonTargetIcon extends StatelessWidget {
@@ -203,24 +208,11 @@ class _BytesImage extends StatelessWidget {
   }
 }
 
-final _cacheManager = CacheManager(
-  Config(
-    DefaultCacheManager.key,
-    fileService: HttpFileService()..concurrentFetches = maxConcurrentIconLoads,
-  ),
-);
-
-Stream<Uint8List> _readCachedIcon(String src) {
-  return _cacheManager
-      .getFileStreamV2(src)
-      .asyncMap((data) => data.file.readAsBytes());
-}
-
-var _readRemoteIcon = _readCachedIcon;
+var _readRemoteIcon = readCachedIcon;
 
 @visibleForTesting
 set readRemoteIcon(Stream<Uint8List> Function(String src)? value) {
-  _readRemoteIcon = value ?? _readCachedIcon;
+  _readRemoteIcon = value ?? readCachedIcon;
 }
 
 Stream<Uint8List> _loadRemoteIcon(String src) {
@@ -267,7 +259,7 @@ Future<void> precacheTargetIcons(Iterable<String> srcs) async {
             }
           }
         } catch (error) {
-          commonPrint.log('Failed to precache icon $src: $error');
+          debugPrint('Failed to precache icon $src: $error');
         }
       });
   await Future.wait(pending);
@@ -323,7 +315,7 @@ class _ImageCacheWidgetState extends State<ImageCacheWidget> {
         }
       },
       onError: (Object error) {
-        commonPrint.log('Failed to read icon $src: $error');
+        debugPrint('Failed to read icon $src: $error');
       },
       onDone: () {
         if (mounted && _bytesNotifier.value == null) {
@@ -361,67 +353,8 @@ class _ImageCacheWidgetState extends State<ImageCacheWidget> {
   }
 }
 
-class PackageIcon extends StatefulWidget {
-  final String packageName;
-  final double size;
-
-  const PackageIcon({super.key, required this.packageName, required this.size});
-
-  @override
-  State<PackageIcon> createState() => _PackageIconState();
-}
-
-class _PackageIconState extends State<PackageIcon> {
-  ImageProvider? _icon;
-  int _generation = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _showCachedIcon();
-    _loadIcon();
-  }
-
-  @override
-  void didUpdateWidget(covariant PackageIcon oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.packageName != widget.packageName) {
-      _showCachedIcon();
-      _loadIcon();
-    }
-  }
-
-  void _showCachedIcon() {
-    _generation++;
-    _icon = app?.getCachedPackageIcon(widget.packageName);
-  }
-
-  void _loadIcon() {
-    final generation = _generation;
-    app?.getPackageIcon(widget.packageName).then((icon) {
-      if (!mounted ||
-          generation != _generation ||
-          icon == null ||
-          icon == _icon) {
-        return;
-      }
-      setState(() {
-        _icon = icon;
-      });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final icon = _icon;
-    if (icon == null) {
-      return SizedBox(width: widget.size, height: widget.size);
-    }
-    return Image(
-      image: icon,
-      gaplessPlayback: true,
-      width: widget.size,
-      height: widget.size,
-    );
-  }
+extension _IconSource on String {
+  bool get isSvg => startsWith('data:')
+      ? startsWith('data:image/svg+xml')
+      : (Uri.tryParse(this)?.path ?? this).toLowerCase().endsWith('.svg');
 }

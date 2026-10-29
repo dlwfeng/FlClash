@@ -93,13 +93,24 @@ phase includes `build/remote-web` in the app resources before signing. A direct
 The Web entry point imports the shared `lib/ui` components and pure localization
 adapter, rather than the native app bootstrap. Existing native page classes
 still depend on filesystem, database and plugin access. The legacy Web feature views are
-currently separate: dashboard, proxy selection/probes, profiles and YAML editing,
-connection management, request/DNS/log inspection, resource inspection/update,
+currently separate: profiles and YAML editing,
+log inspection, resource inspection/update,
 and settings-section editing. This is an outstanding violation of the parity requirement above, not an approved
 architecture or acceptance exception. This is not full page-level or feature parity:
 settings reuse desktop FormRow inputs, with nested sections, switches and choice
 fields; structured lists still use JSON. Individual resource editors, backup/restore, QR flows,
 and desktop integrations have not been adapted to the browser.
+
+The proxy page now mounts the original `ProxiesView`, `ProxiesListView`, `ProxiesTabView`, `ProxyCard` and
+`GroupTabs` from `lib/views/proxies/`. Their rendering, controls and animation code is shared. `bindings.dart` is the
+state/action boundary: native defaults delegate to the existing providers; `lib/remote/proxies.dart` supplies the remote
+adapter. Its provider override is owned by the mounted page and stays stable across client polling; refreshes must not
+reset search text, the current group or expansion state. Pure proxy enums, models, selection/filter/sort helpers and icon widgets are shared too. Native icon byte
+loading keeps its disk cache; Web retrieves bytes through HTTP.
+
+Group-wide delay testing and adding a node to local proxies currently keep their original controls and report
+`remoteFeatureUnavailable` on use. Group tab and expansion state are local to the mounted Web page; they do not write
+the desktop profile. Other feature pages remain outstanding migrations. Do not describe the whole application as having completed UI/UX parity.
 
 All `/api/` paths require the controller secret as a bearer token. The server
 checks Host and Origin, limits JSON bodies, and never exposes arbitrary paths,
@@ -108,3 +119,20 @@ operations resolve an existing profile ID. Large JSON responses are encoded in
 an isolate; integers outside JavaScript's safe range, including Snowflake IDs,
 travel as strings. Settings writes carry the previous section value and reject
 a stale write with HTTP 409.
+
+## Dashboard deployment
+
+`DashboardPageView`, `DashboardGrid`, the narrow-window editor, dashboard cards, service/IP-quality/memory/profile
+sheets and the connection/request/DNS list implementations are shared with the desktop adapters. The Web adapter is
+`lib/remote/dashboard_page.dart`; the desktop page keeps its existing providers and action owners. Navigation dock and
+notification animation implementations are shared as well. Native editor-dependent operations retain their controls
+and report the localized unavailable error; this does not imply whole-application parity.
+
+The desktop bundle must include the new `/api/dashboard`, `/api/dashboard/memory`, `/api/dashboard/probes` and dashboard
+watch/refresh commands. `/api/state` advertises `dashboardProtocol: 1`. Web subscriptions expire and release their
+own probe references, and remote visibility keeps probes active when the desktop window is hidden. No second Core
+process is created. Refreshing static assets alone cannot add these compiled Dart endpoints to a running old app.
+
+Deployment can replace a signed bundle and its Web resources while preserving the running executable's inode and
+port owners. The new backend takes effect only after the user exits and reopens the installed application. Never
+stop the user's process or claim that a static-only swap has activated the new backend. Keep the old bundle for rollback.

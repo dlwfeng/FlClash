@@ -7,17 +7,20 @@ import 'package:fl_clash/remote/client.dart';
 import 'package:fl_clash/remote/main.dart';
 import 'package:fl_clash/ui/switch.dart';
 import 'package:fl_clash/ui/scaffold.dart';
+import 'package:fl_clash/views/dashboard/widgets/current_outbound_view.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:material_ui/material_ui.dart';
 
 class _Adapter implements HttpClientAdapter {
   final commands = <Object?>[];
   final settings = <Object?>[];
+  List<Object?> get mutations => commands.where((value) => !const ['watchDashboard', 'unwatchDashboard'].contains((value as Map)['command'])).toList();
   var failState = false;
   Completer<void>? saveGate;
   final state = <String, Object?>{
     'ready': true,
     'running': false,
+    'localIp': '192.0.2.5',
     'config': {
       'currentProfileId': '374813178134532096',
       'appSettingProps': {'locale': 'en'},
@@ -63,6 +66,15 @@ class _Adapter implements HttpClientAdapter {
       final body = options.data as Map;
       (state['config'] as Map)[body['section']] = body['value'];
     }
+    if (options.path.endsWith('/api/dashboard')) {
+      result = {
+        'outbound': {'phase': 'fresh', 'value': {'ip': '192.0.2.1', 'countryCode': 'US'}},
+        'quality': {'value': {'ip': '192.0.2.1', 'source': 'ipLocate', 'type': 'residential'}, 'loading': false},
+        'services': [], 'stats': {'groups': 0, 'proxies': 0, 'rules': 0, 'providers': 0},
+        'connections': [], 'connectionCount': 0, 'requests': [], 'dns': [],
+      };
+    }
+    if (options.path.endsWith('/api/dashboard/memory')) result = {'app': 1024, 'core': null};
     final failed = failState && options.path.endsWith('/api/state');
     return ResponseBody.fromString(
       jsonEncode(
@@ -103,13 +115,14 @@ void main() {
     (tester) async {
       final (_, adapter) = await mount(tester);
       expect(find.text('Dashboard'), findsWidgets);
-      await tester.tap(find.widgetWithText(FilledButton, 'Start').first);
+      await tester.tap(find.byTooltip('Start').first);
       await tester.pumpAndSettle();
-      expect(adapter.commands, [
+      expect(adapter.mutations, [
         {'command': 'running', 'value': true},
       ]);
-      expect(find.widgetWithText(FilledButton, 'Stop'), findsWidgets);
+      expect(find.byTooltip('Stop'), findsWidgets);
       await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
     },
   );
 
@@ -121,10 +134,11 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Remote subscription'));
     await tester.pumpAndSettle();
-    expect(adapter.commands, [
+    expect(adapter.mutations, [
       {'command': 'selectProfile', 'id': '374813178134532096'},
     ]);
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 
   testWidgets('a lost connection retains state and disables host mutations', (
@@ -134,19 +148,15 @@ void main() {
     adapter.failState = true;
     await tester.runAsync(client.refresh);
     await tester.pumpAndSettle();
-    expect(
-      tester
-          .widget<FilledButton>(
-            find.widgetWithText(FilledButton, 'Start').first,
-          )
-          .onPressed,
-      isNull,
-    );
+    expect(tester.widget<CurrentOutboundCardView>(find.byType(CurrentOutboundCardView)).hasProfile, isFalse);
     expect(find.byType(MaterialBanner), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
   testWidgets('shared settings forms persist a switch', (tester) async {
     final (_, adapter) = await mount(tester);
+    await tester.tap(find.text('Tools'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Settings'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Network'));
@@ -162,6 +172,7 @@ void main() {
       },
     ]);
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
   testWidgets('canceling a changed profile asks before discarding', (
     tester,
@@ -197,6 +208,7 @@ void main() {
       findsNothing,
     );
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
   testWidgets('a pending profile save prevents dismissing the form', (
     tester,
@@ -228,5 +240,6 @@ void main() {
       findsNothing,
     );
     await tester.pumpWidget(const SizedBox.shrink());
+    await tester.pump();
   });
 }

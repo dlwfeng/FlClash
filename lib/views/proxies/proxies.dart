@@ -1,10 +1,5 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/views/proxies/list.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'list.dart';
+import 'dependencies.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -129,7 +124,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   }
 
   void _onSearch(String value) {
-    ref.read(queryProvider(QueryTag.proxies).notifier).value = value;
+    ref.read(proxySearchProvider.notifier).value = value;
   }
 
   @override
@@ -153,7 +148,7 @@ class _ProxiesViewState extends ConsumerState<ProxiesView> {
   @override
   Widget build(BuildContext context) {
     final style = ref.watch(proxiesStyleSettingProvider);
-    final isLoading = ref.watch(loadingProvider(LoadingTag.proxies));
+    final isLoading = ref.watch(proxyPageLoadingProvider);
     final picker = widget.picker;
     final primaryAction = _buildPrimaryAction();
     return CommonScaffold(

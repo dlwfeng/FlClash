@@ -1,5 +1,6 @@
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/common.dart';
+import 'package:fl_clash/enum/traffic.dart';
+import 'package:fl_clash/models/traffic.dart';
+export 'package:fl_clash/models/traffic.dart';
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart' show NumberFormat;
 import 'package:material_ui/material_ui.dart';

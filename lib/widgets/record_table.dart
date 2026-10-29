@@ -1,5 +1,7 @@
 import 'package:collection/collection.dart';
-import 'package:fl_clash/providers/config.dart';
+import 'record_table_native.dart'
+    if (dart.library.js_interop) 'record_table_web.dart'
+    as platform;
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -90,8 +92,7 @@ mixin TableColumnWidthsMixin<T extends ConsumerStatefulWidget>
     on ConsumerState<T> {
   String get tableId;
 
-  late Map<String, double> columnWidths =
-      ref.read(appSettingProvider).tableColumnWidths[tableId] ?? const {};
+  late Map<String, double> columnWidths = platform.readWidths(ref, tableId);
 
   void resizeColumn(
     List<TableColumn> columns,
@@ -117,14 +118,7 @@ mixin TableColumnWidthsMixin<T extends ConsumerStatefulWidget>
 
   void saveColumnWidths() {
     final widths = columnWidths;
-    ref
-        .read(appSettingProvider.notifier)
-        .update(
-          (state) => state.copyWith(
-            tableColumnWidths: {...state.tableColumnWidths, tableId: widths}
-              ..removeWhere((_, widths) => widths.isEmpty),
-          ),
-        );
+    platform.saveWidths(ref, tableId, widths);
   }
 }
 

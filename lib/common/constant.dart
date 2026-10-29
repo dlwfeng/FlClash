@@ -9,6 +9,10 @@ import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/models/models.dart';
 import 'package:material_ui/material_ui.dart';
 
+export 'package:fl_clash/models/proxies.dart' show delayTimedOutValue;
+
+export 'package:fl_clash/ui/metrics.dart' show minTextScale, maxTextScale;
+
 const appName = 'FlClash';
 const appHelperService = 'FlClashHelperService';
 const coreManifestName = 'manifest.json';
@@ -24,8 +28,6 @@ const helperPortValue = 'Port';
 const helperSocketPath = '/run/flclash/helper.sock';
 const helperProtocolVersionHeader = 'x-flclash-helper-protocol';
 final helperProtocolVersion = Platform.isWindows ? '8' : '6';
-const maxTextScale = 1.4;
-const minTextScale = 0.8;
 
 const watchExecution = false;
 
@@ -56,8 +58,6 @@ const delayTestTimeoutOptions = [500, 1000, 2000, 5000, 8000];
 const defaultDelayTestTimeout = 8000;
 
 const delayTestGuardDuration = Duration(seconds: 30);
-
-const delayTimedOutValue = -1;
 
 const probeTimeoutDuration = Duration(seconds: 10);
 

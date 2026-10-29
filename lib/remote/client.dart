@@ -29,6 +29,7 @@ class RemoteControlClient extends ChangeNotifier {
   }
 
   Future<Object?> api(String method, String path, [Object? body]) async {
+    if (_disposed) throw StateError('Remote client is disposed');
     final response = await _http.request<Map<String, dynamic>>(
       '$endpoint$path',
       data: body,
@@ -89,6 +90,7 @@ class RemoteControlClient extends ChangeNotifier {
   }
 
   Future<Object?> mutate(Future<Object?> Function() operation) async {
+    if (_disposed) throw StateError('Remote client is disposed');
     if (busy) throw StateError('An operation is already in progress');
     busy = true;
     notifyListeners();

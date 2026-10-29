@@ -7,6 +7,8 @@ import 'package:fl_clash/enum/enum.dart';
 
 import 'dart:math';
 
+export 'optional_string.dart';
+
 extension StringExtension on String {
   bool get isUrl => webUri != null;
 
@@ -181,19 +183,6 @@ String uniqueLabelFor(
     if (!taken(candidate)) {
       return candidate;
     }
-  }
-}
-
-extension StringNullExt on String? {
-  String takeFirstValid(List<String?> others, {String defaultValue = ''}) {
-    if (this != null && this!.trim().isNotEmpty) return this!.trim();
-
-    for (final s in others) {
-      if (s != null && s.trim().isNotEmpty) {
-        return s.trim();
-      }
-    }
-    return defaultValue;
   }
 }
 

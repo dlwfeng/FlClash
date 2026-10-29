@@ -1,13 +1,10 @@
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/ui/typography.dart';
+import 'dependencies.dart';
 import 'package:flutter/widgets.dart';
 
 const proxyGridSpacing = 8.0;
 
-double get listHeaderHeight {
-  final measure = globalState.measure;
+double getListHeaderHeight(BuildContext context) {
+  final measure = MeasureScope.of(context);
   return 20 +
       measure.textHeight(AppTextStyle.callout) +
       2 +
@@ -15,8 +12,8 @@ double get listHeaderHeight {
       2;
 }
 
-double getItemHeight(ProxyCardType proxyCardType) {
-  final measure = globalState.measure;
+double getItemHeight(ProxyCardType proxyCardType, BuildContext context) {
+  final measure = MeasureScope.of(context);
   final baseHeight =
       16 +
       measure.textHeight(AppTextStyle.subheadline) * 2 +
@@ -32,8 +29,8 @@ double getItemHeight(ProxyCardType proxyCardType) {
   };
 }
 
-double getRowExtent(ProxyCardType proxyCardType) =>
-    getItemHeight(proxyCardType) + proxyGridSpacing;
+double getRowExtent(ProxyCardType proxyCardType, BuildContext context) =>
+    getItemHeight(proxyCardType, context) + proxyGridSpacing;
 
 class GroupOffsets {
   const GroupOffsets(this.groups, this.offsets);

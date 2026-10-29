@@ -1,43 +1,30 @@
-import 'dart:async';
+import 'probe_phase_hold.dart';
 
 import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/providers/routed_probe.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 mixin ProbeStartHold<T extends ConsumerStatefulWidget> on ConsumerState<T> {
-  // A start's own probes often fail; the route epoch it moves asks again.
-  static const _duration = Duration(seconds: 5);
-
-  Timer? _hold;
-
+  final _phaseHold = ProbePhaseHold();
   ProbePhase shownPhase(ProbeEntry<Object?> entry) =>
-      _hold != null && entry.phase == ProbePhase.failed
-      ? ProbePhase.probing
-      : entry.phase;
+      _phaseHold.shown(entry.phase);
+  void _changed() {
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
     super.initState();
+    _phaseHold.addListener(_changed);
     ref.listenManual(
       routeTrackerProvider.select((state) => state.proxied),
-      (_, proxied) => _rearm(proxied),
+      (_, proxied) => _phaseHold.rearm(proxied),
     );
   }
 
   @override
   void dispose() {
-    _hold?.cancel();
+    _phaseHold.dispose();
     super.dispose();
-  }
-
-  void _rearm(bool proxied) {
-    _hold?.cancel();
-    setState(() {
-      _hold = proxied
-          ? Timer(_duration, () {
-              if (mounted) setState(() => _hold = null);
-            })
-          : null;
-    });
   }
 }

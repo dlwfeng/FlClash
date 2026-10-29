@@ -1,11 +1,6 @@
+import 'dependencies.dart';
 import 'dart:math';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -51,20 +46,18 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
     if (!tempUnfoldSet.remove(groupName)) {
       tempUnfoldSet.add(groupName);
     }
-    ref
-        .read(proxiesActionProvider.notifier)
-        .updateCurrentUnfoldSet(tempUnfoldSet);
+    ref.read(proxyPageActionsProvider).updateCurrentUnfoldSet(tempUnfoldSet);
   }
 
   GroupOffsets _getGroupOffsets() {
     final state = ref.read(proxiesListStateProvider);
     final offsets = <double>[];
-    final rowExtent = getRowExtent(state.proxyCardType);
+    final rowExtent = getRowExtent(state.proxyCardType, context);
     final columnOffsets = List.filled(_groupColumns, 0.0);
     for (final (index, group) in state.groups.indexed) {
       final column = index % _groupColumns;
       offsets.add(columnOffsets[column]);
-      columnOffsets[column] += listHeaderHeight + _gap;
+      columnOffsets[column] += getListHeaderHeight(context) + _gap;
       if (state.currentUnfoldSet.contains(group.name)) {
         final rowCount = (group.all.length + _columns - 1) ~/ _columns;
         columnOffsets[column] += _rowsExtent(rowCount, rowExtent);
@@ -129,7 +122,7 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
       ),
       pixels: pixels,
       start: offset,
-      end: offset + listHeaderHeight,
+      end: offset + getListHeaderHeight(context),
     );
   }
 
@@ -147,7 +140,7 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
       proxies: proxies,
       selectedProxyName: ref.read(selectedProxyNameProvider(groupName)),
       columns: _columns,
-      rowExtent: getRowExtent(cardType),
+      rowExtent: getRowExtent(cardType, context),
     );
     if (rowOffset == null) {
       return;
@@ -166,15 +159,12 @@ class _ProxiesListViewState extends ConsumerState<ProxiesListView> {
         final cardType = ref.watch(
           proxiesListStateProvider.select((state) => state.proxyCardType),
         );
-        ref.watch(themeSettingProvider.select((state) => state.textScale));
-        final viewMode = ref.watch(viewModeProvider);
+        final viewMode = proxyPageViewMode(ref, context);
         final proxiesLayout = ref.watch(
           proxiesStyleSettingProvider.select((state) => state.layout),
         );
         final isSearching = ref.watch(
-          queryProvider(
-            QueryTag.proxies,
-          ).select((query) => SearchQuery(query).isNotEmpty),
+          proxySearchProvider.select((query) => SearchQuery(query).isNotEmpty),
         );
         return NullStatusSwitcher(
           isEmpty: groups.isEmpty,
@@ -356,7 +346,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
         .map<Widget>(
           (proxy) => Flexible(
             child: SizedBox(
-              height: getItemHeight(cardType),
+              height: getItemHeight(cardType, context),
               child: ProxyCard(
                 testUrl: group.testUrl,
                 type: cardType,
@@ -446,7 +436,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
     final unfolded = _controller.isCompleted;
     Widget? rows;
     if (!_controller.isDismissed && widget.group.all.isNotEmpty) {
-      final extent = getRowExtent(widget.cardType);
+      final extent = getRowExtent(widget.cardType, context);
       final decoration = ShapeDecoration(
         color: context.raisedSurfaceLevel.colorOf(context.colorScheme),
         shape: AppShape.vertical(
@@ -478,7 +468,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
       _rows = null;
     }
     Widget buildHeader({double floating = 0, double lift = 0}) => SizedBox(
-      height: listHeaderHeight,
+      height: getListHeaderHeight(context),
       child: ListHeader(
         enterAnimated: false,
         floating: floating,
@@ -512,10 +502,10 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
     final rowCount = (widget.group.all.length + columns - 1) ~/ columns;
     final rowsExtent = isExpand ? _rowsExtent(rowCount, _rowExtent) : 0.0;
     final groupExtent =
-        listHeaderHeight +
+        getListHeaderHeight(context) +
         (_controller.isDismissed
             ? 0.0
-            : _rowsExtent(rowCount, getRowExtent(widget.cardType)));
+            : _rowsExtent(rowCount, getRowExtent(widget.cardType, context)));
     (double, double, double, Color)? headerState;
     Widget? header;
     return SliverLayoutBuilder(
@@ -543,7 +533,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
         headerState = state;
         if (state == null) {
           return header = PinnedHeaderSliver(
-            child: SizedBox(height: listHeaderHeight),
+            child: SizedBox(height: getListHeaderHeight(context)),
           );
         }
         final (floating, lift, cover, pageColor) = state;
@@ -556,7 +546,7 @@ class _GroupSliverState extends ConsumerState<_GroupSliver>
                   top: -cover,
                   left: 0,
                   right: 0,
-                  height: cover + listHeaderHeight / 2,
+                  height: cover + getListHeaderHeight(context) / 2,
                   child: ColoredBox(color: pageColor),
                 ),
                 buildHeader(floating: floating, lift: lift),
@@ -638,7 +628,7 @@ class ListHeader extends ConsumerWidget {
               },
               onDelayTest: () {
                 ref
-                    .read(proxiesActionProvider.notifier)
+                    .read(proxyPageActionsProvider)
                     .delayTestPageGroup(groupName);
               },
               onToggle: () {

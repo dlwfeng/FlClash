@@ -1,209 +1,25 @@
 part of 'main.dart';
 
 extension _RemoteViews on _RemoteHomeState {
-  Widget _dashboard() {
-    final traffic = _map(state['traffic']);
-    final total = _map(state['totalTraffic']);
-    final network = _map(config['networkProps']);
-    final clash = _map(config['patchClashConfig']);
-    return _pageView(l.dashboard, [
-      _card(
-        Row(
-          children: [
-            Expanded(
-              child: Text(
-                state['running'] == true ? l.connected : l.disconnected,
-                style: AppTextStyle.title1.of(context),
-              ),
-            ),
-            FilledButton(
-              onPressed: enabled
-                  ? () =>
-                        _command('running', {'value': state['running'] != true})
-                  : null,
-              child: Text(state['running'] == true ? l.stop : l.start),
-            ),
-          ],
-        ),
-      ),
-      _card(
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: 12,
-          children: [
-            Text(l.networkSpeed, style: AppTextStyle.headline.of(context)),
-            Wrap(
-              spacing: 24,
-              runSpacing: 8,
-              children: [
-                Text(
-                  '${l.upload} ${_traffic(traffic['up'])}/s',
-                  style: AppTextStyle.title2.of(context),
-                ),
-                Text(
-                  '${l.download} ${_traffic(traffic['down'])}/s',
-                  style: AppTextStyle.title2.of(context),
-                ),
-              ],
-            ),
-            Text(
-              '${l.trafficUsage}  ↑ ${_traffic(total['up'])}    ↓ ${_traffic(total['down'])}',
-            ),
-          ],
-        ),
-      ),
-      _card(
-        Column(
-          spacing: 12,
-          children: [
-            _toggle(
-              l.systemProxy,
-              network['systemProxy'] == true,
-              (value) => _patchField('networkProps', 'systemProxy', value),
-            ),
-            _toggle(
-              l.tun,
-              _map(clash['tun'])['enable'] == true,
-              (value) => _patchField('patchClashConfig', 'tun', {
-                ..._map(clash['tun']),
-                'enable': value,
-              }),
-            ),
-            Row(
-              children: [
-                Expanded(child: Text(l.outboundMode)),
-                DropdownButton<String>(
-                  value:
-                      const ['rule', 'global', 'direct'].contains(clash['mode'])
-                      ? clash['mode'] as String
-                      : 'rule',
-                  items: [
-                    DropdownMenuItem(value: 'rule', child: Text(l.rule)),
-                    DropdownMenuItem(value: 'global', child: Text(l.global)),
-                    DropdownMenuItem(value: 'direct', child: Text(l.direct)),
-                  ],
-                  onChanged: enabled
-                      ? (value) =>
-                            _patchField('patchClashConfig', 'mode', value)
-                      : null,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      Wrap(
-        spacing: 12,
-        runSpacing: 12,
-        children: [
-          OutlinedButton(
-            onPressed: enabled ? () => _command('restart') : null,
-            child: Text(l.restart),
-          ),
-          OutlinedButton(
-            onPressed: enabled ? () => _command('apply') : null,
-            child: Text(l.applyNow),
-          ),
-        ],
-      ),
-    ]);
-  }
+  Widget _dashboard() => RemoteDashboardPage(client: client);
 
-  Widget _toggle(String title, bool value, ValueChanged<bool> onChanged) => Row(
-    children: [
-      Expanded(child: Text(title)),
-      CommonSwitch(value: value, onChanged: enabled ? onChanged : null),
-    ],
-  );
+  Widget _proxies() => RemoteProxiesPage(client: client);
 
-  Future<void> _patchField(String section, String key, Object? value) async {
-    final expected = _map(config[section]);
-    await _run(
-      () => client.patchSettings(section, {...expected, key: value}, expected),
-    );
-  }
-
-  Widget _proxies() {
-    final selected = _map(state['selectedMap']);
-    final groups = _maps(state['groups']);
-    return _pageView(l.proxies, [
-      for (final group in groups)
-        _card(
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: 12,
-            children: [
-              Text(
-                '${group['name']}',
-                style: AppTextStyle.headline.of(context),
-              ),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  for (final proxy in _maps(group['all']))
-                    _proxy(group, proxy, selected),
-                ],
-              ),
-            ],
-          ),
-        ),
-    ]);
-  }
-
-  Widget _proxy(
-    Map<String, dynamic> group,
-    Map<String, dynamic> proxy,
-    Map<String, dynamic> selected,
-  ) {
-    final name = proxy['name'] as String;
-    final now = selected[group['name']] ?? group['now'];
-    return CommonCard(
-      isSelected: now == name,
-      onPressed: enabled && group['type'] == 'select'
-          ? () =>
-                _command('selectProxy', {'group': group['name'], 'proxy': name})
-          : null,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: 8,
-          children: [
-            if (now == name) const GlyphIcon(AppGlyphs.check),
-            ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 240),
-              child: Text(name, overflow: TextOverflow.ellipsis),
-            ),
-            IconButton(
-              tooltip: l.delayTest,
-              onPressed: enabled
-                  ? () async {
-                      final result = await _run(
-                        () => client.command('delay', {
-                          'proxy': name,
-                          'url':
-                              group['testUrl'] ??
-                              _map(config['patchClashConfig'])['testUrl'] ??
-                              'https://www.gstatic.com/generate_204',
-                        }),
-                      );
-                      if (mounted) _storeDelay(name, _map(result)['value']);
-                    }
-                  : null,
-              icon: const GlyphIcon(AppGlyphs.speed),
-            ),
-            if (_delayResults.containsKey(name))
-              Text(
-                _delayResults[name] == null
-                    ? l.delayFailed
-                    : '${_delayResults[name]} ms',
-              ),
-          ],
-        ),
+  Widget _tools() => _pageView(l.tools, [
+    for (final item in <(int, Glyph, String)>[
+      (3, AppGlyphs.connections, l.liveConnections),
+      (4, AppGlyphs.requests, l.recentRequests),
+      (5, AppGlyphs.dns, l.dnsQueries),
+      (6, AppGlyphs.logs, l.logs),
+      (7, AppGlyphs.resources, l.resources),
+      (8, AppGlyphs.settings, l.settings),
+    ])
+      DecorationListItem(
+        leading: GlyphIcon(item.$2),
+        title: Text(item.$3),
+        onPressed: () => selectPage(item.$1),
       ),
-    );
-  }
+  ]);
 
   Widget _profiles() => _pageView(
     l.profiles,
@@ -353,17 +169,6 @@ extension _RemoteViews on _RemoteHomeState {
     ),
     onRefresh: enabled ? () => _command('updateResources') : null,
   );
-}
-
-String _traffic(Object? bytes) {
-  var value = bytes is num ? bytes.toDouble() : double.tryParse('$bytes') ?? 0;
-  const units = ['B', 'KB', 'MB', 'GB', 'TB'];
-  var unit = 0;
-  while (value >= 1024 && unit < units.length - 1) {
-    value /= 1024;
-    unit++;
-  }
-  return '${value.toStringAsFixed(unit == 0 ? 0 : 1)} ${units[unit]}';
 }
 
 class _RemoteFeed extends StatefulWidget {

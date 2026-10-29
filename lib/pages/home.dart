@@ -1,9 +1,9 @@
+import 'package:fl_clash/widgets/home_navigation_shell.dart';
 import 'package:fl_clash/common/common.dart';
 import 'package:fl_clash/enum/enum.dart';
 import 'package:fl_clash/manager/app_manager.dart';
 import 'package:fl_clash/models/common.dart';
 import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/widgets/widgets.dart';
 import 'package:flutter/foundation.dart';
 import 'package:material_ui/material_ui.dart';
@@ -66,109 +66,15 @@ class _HomeShell extends ConsumerWidget {
     final floating = ref.watch(
       appSettingProvider.select((state) => state.floatingNavigationBar),
     );
-    return Material(
-      color: SurfaceLevel.page.colorOf(context.colorScheme),
-      child: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: FocusTraversalGroup(
-                    policy: PageTraversalPolicy(),
-                    child: BottomInsetScope(
-                      inset: isMobile && floating
-                          ? NavigationDock.insetOf(context)
-                          : 0,
-                      child: _BodyPadding(isMobile: isMobile, child: child),
-                    ),
-                  ),
-                ),
-                PositionedDirectional(
-                  start: 0,
-                  end: 0,
-                  bottom: 0,
-                  child: AnimatedVisibility.bottomNavigation(
-                    visible: isMobile && floating,
-                    child: _NavigationPadding(
-                      child: NavigationDock(
-                        destinations: [
-                          for (final item in navigationItems)
-                            NavigationDockDestination(
-                              glyph: item.glyph,
-                              label: item.label.label,
-                            ),
-                        ],
-                        selectedIndex: state.currentIndex,
-                        onSelected: (index) {
-                          _handleToPage(navigationItems[index].label, ref);
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          AnimatedVisibility.bottomNavigation(
-            visible: isMobile && !floating,
-            child: _NavigationPadding(
-              child: NavigationBar(
-                destinations: [
-                  for (final (index, item) in navigationItems.indexed)
-                    NavigationDestination(
-                      icon: AnimatedGlyph(
-                        glyph: item.glyph,
-                        filled: index == state.currentIndex,
-                      ),
-                      label: item.label.label,
-                    ),
-                ],
-                selectedIndex: state.currentIndex,
-                onDestinationSelected: (index) {
-                  _handleToPage(navigationItems[index].label, ref);
-                },
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _BodyPadding extends StatelessWidget {
-  const _BodyPadding({required this.isMobile, required this.child});
-
-  final bool isMobile;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return MediaQuery.removePadding(
-      removeTop: false,
-      removeBottom: isMobile,
-      removeLeft: isMobile,
-      removeRight: isMobile,
-      context: context,
-      child: child,
-    );
-  }
-}
-
-class _NavigationPadding extends StatelessWidget {
-  const _NavigationPadding({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    return MediaQuery.removePadding(
-      removeTop: true,
-      removeBottom: false,
-      removeLeft: true,
-      removeRight: true,
-      context: context,
+    return HomeNavigationShell(
+      isMobile: isMobile,
+      floating: floating,
+      destinations: [
+        for (final item in navigationItems)
+          NavigationDockDestination(glyph: item.glyph, label: item.label.label),
+      ],
+      selectedIndex: state.currentIndex,
+      onSelected: (index) => _handleToPage(navigationItems[index].label, ref),
       child: child,
     );
   }

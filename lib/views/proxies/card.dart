@@ -1,10 +1,4 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/state.dart';
-import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'dependencies.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -22,14 +16,11 @@ void selectGroupProxy(
       false => proxyName,
     };
     ref
-        .read(proxiesActionProvider.notifier)
+        .read(proxyPageActionsProvider)
         .changeProxyDebounce(groupName, nextProxyName);
     return;
   }
-  dialogs.showNotifier(
-    currentAppLocalizations.notSelectedTip,
-    level: MessageLevel.warning,
-  );
+  showProxySelectionWarning(ref);
 }
 
 /// Built-ins and groups have no definition, and a custom profile's own proxies
@@ -56,9 +47,8 @@ class ProxyCard extends ConsumerWidget {
     required this.type,
   });
 
-  Measure get measure => globalState.measure;
-
   Widget _buildProxyNameText(BuildContext context) {
+    final measure = MeasureScope.of(context);
     if (type == ProxyCardType.compact) {
       return SizedBox(
         height: measure.textHeight(AppTextStyle.subheadline) * 1,
@@ -92,8 +82,7 @@ class ProxyCard extends ConsumerWidget {
   }
 
   void _handleAddToLocalProxies(WidgetRef ref) {
-    final proxiesAction = ref.read(proxiesActionProvider.notifier);
-    globalState.safeRun(() => proxiesAction.addToLocalProxies(proxy.name));
+    addProxyToLocal(ref, proxy.name);
   }
 
   List<CommonPopupMenuItem> _menuItems(
@@ -130,7 +119,7 @@ class ProxyCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final measure = globalState.measure;
+    final measure = MeasureScope.of(context);
     final isLoose = type == ProxyCardType.loose;
     final delayText = _DelayText(
       proxy: proxy,
@@ -184,11 +173,7 @@ class ProxyCard extends ConsumerWidget {
             ref.watch(
               proxyNameProvider(groupName).select((name) => name == proxy.name),
             );
-        final isCustomProfile = ref.watch(
-          currentProfileProvider.select(
-            (profile) => profile?.type == ProfileType.custom,
-          ),
-        );
+        final isCustomProfile = ref.watch(isCustomProxyProfileProvider);
         return ContextMenuRegion(
           menuItems: _menuItems(
             context,
@@ -302,7 +287,7 @@ class _DelayTextState extends ConsumerState<_DelayText> {
 
   void _handleTestCurrentDelay() {
     ref
-        .read(proxiesActionProvider.notifier)
+        .read(proxyPageActionsProvider)
         .proxyDelayTest(widget.proxy, widget.testUrl);
   }
 
@@ -335,7 +320,7 @@ class _DelayTextState extends ConsumerState<_DelayText> {
 
   @override
   Widget build(BuildContext context) {
-    final measure = globalState.measure;
+    final measure = MeasureScope.of(context);
     final delay = ref.watch(
       delayProvider(proxyName: widget.proxy.name, testUrl: widget.testUrl),
     );

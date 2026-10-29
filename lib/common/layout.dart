@@ -1,11 +1,8 @@
-import 'dart:math';
+export 'proxy_layout.dart';
+
 import 'dart:ui' show Size;
 
 import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/ui/ui.dart';
-import 'package:flutter/widgets.dart' show BuildContext;
-
-import 'package:fl_clash/ui/navigation_frame.dart';
 
 double getWindowHeaderHeight({required bool isDesktop, required bool isMacOS}) {
   if (!isDesktop) return 0;
@@ -32,12 +29,6 @@ bool showsWindowHeader({
   return !(isMacOS && (version <= 10 || !isMobileView));
 }
 
-ViewMode getViewMode(double viewWidth) {
-  if (viewWidth <= mobileNavigationMaxWidth) return ViewMode.mobile;
-  if (viewWidth <= compactNavigationMaxWidth) return ViewMode.laptop;
-  return ViewMode.desktop;
-}
-
 /// An expanded sidebar in the laptop range would leave the content narrower
 /// than the mobile layout one breakpoint below, so labels wait for desktop.
 bool canExpandSidebar(ViewMode viewMode) => viewMode == ViewMode.desktop;
@@ -60,22 +51,6 @@ Size windowControlsOverPage({
   if (isMobileView) return Size.zero;
   return windowControlsOverSidebar(isMacOS: isMacOS, version: version);
 }
-
-int getProxiesColumns(double viewWidth, ProxiesLayout proxiesLayout) {
-  final columns = max((viewWidth / 250).ceil(), 2);
-  return switch (proxiesLayout) {
-    ProxiesLayout.tight => columns + 1,
-    ProxiesLayout.standard => columns,
-    ProxiesLayout.loose => columns - 1,
-  };
-}
-
-double cardSpacingOf(BuildContext context, ViewMode viewMode) =>
-    switch (viewMode) {
-      ViewMode.mobile => 8.0,
-      ViewMode.laptop => 12.0,
-      ViewMode.desktop => 16.0,
-    }.mAp(context);
 
 const profileItemMinWidth = 300.0;
 const _profilesMaxColumns = 3;

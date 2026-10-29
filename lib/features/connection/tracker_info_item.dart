@@ -1,9 +1,8 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/config.dart';
+import 'feed_dependencies.dart';
+import 'tracker_platform_native.dart'
+    if (dart.library.js_interop) 'tracker_platform_web.dart'
+    as platform;
 import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -60,12 +59,7 @@ class TrackerInfoItem extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ref) {
-    final showIcon = ref.watch(
-      patchClashConfigProvider.select(
-        (state) =>
-            state.findProcessMode == FindProcessMode.always && system.isAndroid,
-      ),
-    );
+    final showIcon = platform.showProcessIcons(ref);
     return RecordListItem(
       onTap: () => showTrackerInfoDetail(context, trackerInfo, detailTitle),
       header: _buildHeader(context),
@@ -162,7 +156,7 @@ class _TrackerInfoBody extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () => onClickKeyword?.call(process),
-          child: PackageIcon(packageName: process, size: 24),
+          child: platform.packageIcon(process, 24),
         ),
         Flexible(child: title),
       ],

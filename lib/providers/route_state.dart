@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import 'app.dart';
+import 'probe_activity.dart';
 import 'core.dart';
 import 'state.dart';
 
@@ -158,7 +159,7 @@ class RouteTracker extends _$RouteTracker {
     ref.listen(isStartProvider, (_, _) => _scheduleSyncProxied());
     ref.listen(suspendProvider, (_, _) => _scheduleSyncProxied());
     ref.listen(initProvider, (_, _) => _subscribe());
-    ref.listen(appVisibleProvider, (_, visible) {
+    ref.listen(probeActivityProvider, (_, visible) {
       if (visible) {
         _subscribe();
       } else if (_watchers > 0) {
@@ -179,7 +180,7 @@ class RouteTracker extends _$RouteTracker {
 
   bool get _ready =>
       _watchers > 0 &&
-      ref.read(appVisibleProvider) &&
+      ref.read(probeActivityProvider) &&
       ref.read(initProvider) &&
       ref.read(coreStatusProvider) == CoreStatus.connected;
 

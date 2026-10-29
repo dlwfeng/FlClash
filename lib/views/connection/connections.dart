@@ -1,14 +1,11 @@
+import 'package:fl_clash/features/connection/feed_dependencies.dart';
+import 'package:fl_clash/features/connection/feed_bindings.dart';
+import 'package:fl_clash/features/connection/tracker_info_list.dart';
+import 'package:fl_clash/features/connection/tracker_info_table.dart';
+import 'package:fl_clash/features/connection/tracker_speed_ranker.dart';
 import 'dart:async';
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/core/controller.dart';
-import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/features/features.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -31,7 +28,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
         WidgetsBindingObserver,
         ActivePollingMixin<ConnectionsView>,
         RouteMotionHoldMixin<ConnectionsView> {
-  CoreController get _core => ref.read(coreHandlerProvider);
+  FeedCore get _core => ref.read(coreHandlerProvider);
 
   final _listController = TrackerInfoListController();
   final _speedRanker = TrackerSpeedRanker();
@@ -85,10 +82,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
           ? await connectionsReader()
           : await _core.getConnections();
     } catch (error) {
-      commonPrint.log(
-        'updateConnections error: $error',
-        logLevel: coreFailureLogLevel(error),
-      );
+      logFeedFailure('updateConnections', error);
       return null;
     }
   }
@@ -128,7 +122,7 @@ class _ConnectionsViewState extends ConsumerState<ConnectionsView>
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return CommonScaffold(
-      title: PageLabel.connections.label,
+      title: appLocalizations.liveConnections,
       onKeywordsUpdate: _listController.updateKeywords,
       searchState: AppBarSearchState(onSearch: _listController.search),
       iconActions: _buildActions(),

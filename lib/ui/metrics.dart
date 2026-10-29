@@ -26,3 +26,6 @@ const sheetAppBarHeight = 68.0;
 
 const midDuration = Duration(milliseconds: 200);
 const commonDuration = Duration(milliseconds: 300);
+
+const maxTextScale = 1.4;
+const minTextScale = 0.8;

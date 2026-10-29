@@ -1,3 +1,4 @@
+import 'picker_view.dart' hide getProfilesColumns, profileItemMinWidth;
 import 'dart:async';
 
 import 'package:fl_clash/common/common.dart';
@@ -17,15 +18,8 @@ import 'add.dart';
 import 'edit.dart';
 import 'preview.dart';
 
-const _infoGap = 4.0;
 
-double get _profileItemHeight {
-  final measure = globalState.measure;
-  return measure.textHeight(AppTextStyle.headline) +
-      _infoGap +
-      measure.textHeight(AppTextStyle.footnote) +
-      2 * listRowVerticalPadding;
-}
+
 
 class ProfilesView extends ConsumerStatefulWidget {
   const ProfilesView({super.key, this.picker = false});
@@ -144,125 +138,19 @@ class _ProfilesViewState extends ConsumerState<ProfilesView> {
   }
 }
 
-class _ProfilesGrid extends ConsumerStatefulWidget {
-  const _ProfilesGrid({
-    required this.profiles,
-    required this.currentProfileId,
-    required this.spacing,
-    required this.revealsSelected,
-  });
-
+class _ProfilesGrid extends StatelessWidget {
+  const _ProfilesGrid({required this.profiles, required this.currentProfileId, required this.spacing, required this.revealsSelected});
   final List<Profile> profiles;
   final int? currentProfileId;
   final double spacing;
   final bool revealsSelected;
-
   @override
-  ConsumerState<_ProfilesGrid> createState() => _ProfilesGridState();
-}
-
-class _ProfilesGridState extends ConsumerState<_ProfilesGrid> {
-  static const _horizontalPadding = 16.0;
-
-  late final ScrollController _controller;
-  var _revealed = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = sheetScrollController(context);
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_revealed ||
-        !widget.revealsSelected ||
-        !PageActivityScope.isActiveOf(context)) {
-      return;
-    }
-    _revealed = true;
-    WidgetsBinding.instance.addPostFrameCallback((_) => _revealSelected());
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  EdgeInsets get _padding => EdgeInsets.only(
-    left: _horizontalPadding,
-    right: _horizontalPadding,
-    top: context.contentTopPadding,
-    bottom: 16 + context.bottomInset,
-  );
-
-  int _columnsFor(double width) => getProfilesColumns(
-    width - _horizontalPadding * 2,
-    spacing: widget.spacing,
-    minItemWidth: profileItemMinWidth.ap(context),
-  );
-
-  void _revealSelected() {
-    if (!mounted || !_controller.hasClients) {
-      return;
-    }
-    final index = widget.profiles.indexWhere(
-      (profile) => profile.id == widget.currentProfileId,
-    );
-    if (index == -1) {
-      return;
-    }
-    final position = _controller.position;
-    final padding = _padding;
-    final height = _profileItemHeight;
-    final row = index ~/ _columnsFor(context.size!.width);
-    final atTop = row * (height + widget.spacing);
-    final atBottom =
-        atTop + padding.vertical + height - position.viewportDimension;
-    if (position.pixels >= atBottom && position.pixels <= atTop) {
-      return;
-    }
-    _controller.jumpTo(
-      ((atTop + atBottom) / 2).clamp(
-        position.minScrollExtent,
-        position.maxScrollExtent,
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final profiles = widget.profiles;
-    return WidthBuilder(
-      builder: (_, width) {
-        return GridView.builder(
-          key: profilesStoreKey,
-          controller: _controller,
-          padding: _padding,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: _columnsFor(width),
-            mainAxisSpacing: widget.spacing,
-            crossAxisSpacing: widget.spacing,
-            mainAxisExtent: _profileItemHeight,
-          ),
-          itemCount: profiles.length,
-          itemBuilder: (context, index) {
-            final profile = profiles[index];
-            return ProfileItem(
-              key: ValueKey(profile.id),
-              profile: profile,
-              groupValue: widget.currentProfileId,
-              onChanged: (profileId) {
-                ref.read(currentProfileIdProvider.notifier).value = profileId;
-              },
-            );
-          },
-        );
-      },
-    );
-  }
+  Widget build(BuildContext context) => Consumer(builder: (context, ref, _) => ProfilesGridView(
+    itemCount: profiles.length, selectedIndex: profiles.indexWhere((profile) => profile.id == currentProfileId),
+    spacing: spacing, revealsSelected: revealsSelected,
+    itemBuilder: (context, index) => ProfileItem(key: ValueKey(profiles[index].id), profile: profiles[index], groupValue: currentProfileId,
+      onChanged: (id) => ref.read(currentProfileIdProvider.notifier).value = id),
+  ));
 }
 
 class ProfileItem extends ConsumerWidget {
@@ -500,71 +388,11 @@ class ProfileItem extends ConsumerWidget {
     final isUpdating = ref.watch(isUpdatingProvider(profile.updatingKey));
     final subscriptionInfo = _subscriptionInfo;
     final isSelected = profile.id == groupValue;
-    return ContextMenuRegion(
-      menuItems: isUpdating ? null : _menuItems(context, ref),
-      child: CommonCard(
-        enterActionsOnRight: true,
-        radius: AppCorner.xl,
-        isSelected: isSelected,
-        onPressed: () {
-          onChanged(profile.id);
-        },
-        child: ListItem(
-          key: Key(profile.id.toString()),
-          minTileHeight: _profileItemHeight,
-          minVerticalPadding: listRowVerticalPadding,
-          trailing: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: 8,
-            children: [
-              if (profile.type == ProfileType.custom)
-                _GroupsCountChip(profileId: profile.id)
-              else
-                _buildTrailing(context, isUpdating: isUpdating),
-              if (isSelected) const SelectionBadge(size: 24),
-            ],
-          ),
-          title: _ProfileCardTitle(
-            profile: profile,
-            expire: subscriptionInfo?.expireDate,
-            subtitle: _subtitle(context),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ProfileCardTitle extends StatelessWidget {
-  const _ProfileCardTitle({
-    required this.profile,
-    required this.expire,
-    required this.subtitle,
-  });
-
-  final Profile profile;
-  final DateTime? expire;
-  final String subtitle;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ChipTitle(
-          title: profile.realLabel,
-          expire: expire,
-          style: AppTextStyle.headline.of(context),
-        ),
-        const SizedBox(height: _infoGap),
-        Text(
-          subtitle,
-          style: AppTextStyle.footnote.of(context).toLighter,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
+    return ProfilePickerItemView(id: profile.id, title: profile.realLabel,
+      subtitle: _subtitle(context), expire: subscriptionInfo?.expireDate,
+      isSelected: isSelected, menuItems: isUpdating ? null : _menuItems(context, ref),
+      onSelect: () => onChanged(profile.id),
+      trailing: profile.type == ProfileType.custom ? _GroupsCountChip(profileId: profile.id) : _buildTrailing(context, isUpdating: isUpdating),
     );
   }
 }

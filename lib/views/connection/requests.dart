@@ -1,9 +1,7 @@
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/features/features.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/providers.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:fl_clash/features/connection/feed_dependencies.dart';
+import 'package:fl_clash/features/connection/feed_bindings.dart';
+import 'package:fl_clash/features/connection/tracker_info_list.dart';
+import 'package:fl_clash/features/connection/tracker_info_table.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -49,7 +47,7 @@ class _RequestsViewState extends ConsumerState<RequestsView>
   }
 
   void updateRequestsThrottler() {
-    throttler.call(FunctionTag.requests, () {
+    feedThrottler.call('requests', () {
       if (!mounted) {
         return;
       }
@@ -63,7 +61,7 @@ class _RequestsViewState extends ConsumerState<RequestsView>
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     return CommonScaffold(
-      title: PageLabel.requests.label,
+      title: appLocalizations.recentRequests,
       searchState: AppBarSearchState(onSearch: _listController.search),
       onKeywordsUpdate: _listController.updateKeywords,
       body: ValueListenableBuilder<TrackerInfosState>(

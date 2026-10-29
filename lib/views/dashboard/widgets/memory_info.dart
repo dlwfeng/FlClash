@@ -1,94 +1,35 @@
-import 'dart:io';
 import 'dart:math';
-
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/core/method.dart';
-import 'package:fl_clash/enum/enum.dart';
+import 'package:fl_clash/l10n/context.dart';
 import 'package:fl_clash/l10n/l10n.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/core.dart';
+import 'package:fl_clash/ui/ui.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/views/dashboard/layout.dart';
-import 'package:fl_clash/views/dashboard/style.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:fl_clash/widgets/active_polling.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import '../layout.dart';
+import '../style.dart';
+import '../format.dart';
 import 'card.dart';
-
-@immutable
-class MemorySnapshot {
-  const MemorySnapshot({
-    this.app = 0,
-    this.coreTotal = 0,
-    this.core,
-    this.coreInProcess = false,
-  });
-
-  final int app;
-  final int coreTotal;
-  final CoreMemoryStats? core;
-  final bool coreInProcess;
-
-  int get total => app + coreTotal;
-
-  int get coreOther => max(0, coreTotal - (core?.runtimeTotal ?? 0));
-
-  /// On Android the Core shares the app process, so its runtime accounting is
-  /// carved out of the process RSS instead of added on top of it.
-  static MemorySnapshot resolve({
-    required int rss,
-    required CoreMemoryStats? core,
-    required bool coreInProcess,
-  }) {
-    if (core == null) {
-      return MemorySnapshot(app: rss, coreInProcess: coreInProcess);
-    }
-    if (coreInProcess) {
-      final runtime = core.runtimeTotal;
-      return MemorySnapshot(
-        app: max(0, rss - runtime),
-        coreTotal: runtime,
-        core: core,
-        coreInProcess: true,
-      );
-    }
-    return MemorySnapshot(app: rss, coreTotal: core.rss, core: core);
-  }
-}
-
-typedef MemoryReader = Future<MemorySnapshot> Function();
+import 'memory_snapshot.dart';
+import 'memory_native.dart'
+    if (dart.library.js_interop) 'memory_web.dart'
+    as platform;
+export 'memory_snapshot.dart';
 
 Future<MemorySnapshot?> _readMemory(WidgetRef ref, MemoryReader? reader) async {
   try {
-    return reader != null ? await reader() : await _readSnapshot(ref);
+    return reader != null ? await reader() : await platform.readSnapshot(ref);
   } catch (error) {
-    commonPrint.log(
-      'updateMemory error: $error',
-      logLevel: coreFailureLogLevel(error),
-    );
+    platform.logFailure('updateMemory', error);
     return null;
   }
 }
 
-Future<MemorySnapshot> _readSnapshot(WidgetRef ref) async {
-  final rss = ProcessInfo.currentRss;
-  final coreConnected = ref.read(coreStatusProvider) == CoreStatus.connected;
-  final core = coreConnected
-      ? await ref.read(coreHandlerProvider).getMemoryStats()
-      : null;
-  return MemorySnapshot.resolve(
-    rss: rss,
-    core: core,
-    coreInProcess: system.isAndroid,
-  );
-}
-
 class MemoryInfo extends ConsumerStatefulWidget {
   final MemoryReader? memoryReader;
+  final Future<void> Function()? onRelease;
 
-  const MemoryInfo({super.key, @visibleForTesting this.memoryReader});
+  const MemoryInfo({super.key, this.memoryReader, this.onRelease});
 
   @override
   ConsumerState<MemoryInfo> createState() => _MemoryInfoState();
@@ -135,6 +76,7 @@ class _MemoryInfoState extends ConsumerState<MemoryInfo>
       builder: (_) => MemoryDetailSheet(
         initial: _memoryStateNotifier.value,
         memoryReader: widget.memoryReader,
+        onRelease: widget.onRelease,
       ),
     );
     if (!mounted) {
@@ -205,7 +147,7 @@ class _MemorySummary extends StatelessWidget {
     final colorScheme = context.colorScheme;
     final mobile = !density.isDesktop;
     final compact = density.isCompact;
-    final total = memory.total.traffic;
+    final total = dashboardTrafficValue(memory.total);
     final figure = mobile ? AppTextStyle.title1 : AppTextStyle.title2;
     final parts = [
       (
@@ -263,7 +205,7 @@ class _MemorySummary extends StatelessWidget {
                   ),
                   Text(part.label, style: DashboardText.label(context)),
                   Text(
-                    '${part.bytes.traffic.value} ${part.bytes.traffic.unit}',
+                    '${dashboardTrafficValue(part.bytes).value} ${dashboardTrafficValue(part.bytes).unit}',
                     style: AppTextStyle.footnote
                         .of(context, emphasized: true)
                         .toTabular,
@@ -281,11 +223,13 @@ class MemoryDetailSheet extends ConsumerStatefulWidget {
   const MemoryDetailSheet({
     super.key,
     required this.initial,
-    @visibleForTesting this.memoryReader,
+    this.memoryReader,
+    this.onRelease,
   });
 
   final MemorySnapshot initial;
   final MemoryReader? memoryReader;
+  final Future<void> Function()? onRelease;
 
   @override
   ConsumerState<MemoryDetailSheet> createState() => _MemoryDetailSheetState();
@@ -313,7 +257,7 @@ class _MemoryDetailSheetState extends ConsumerState<MemoryDetailSheet>
   /// Resolves to the bytes freed.
   Future<int> _release() async {
     final before = _snapshot.total;
-    await ref.read(coreHandlerProvider).requestGc();
+    await (widget.onRelease?.call() ?? platform.requestGc(ref));
     if (!mounted) {
       return 0;
     }
@@ -332,28 +276,27 @@ class _MemoryDetailSheetState extends ConsumerState<MemoryDetailSheet>
     setState(() => _isReleasing = true);
     final appLocalizations = context.appLocalizations;
     String message;
-    var level = MessageLevel.success;
+    var success = true;
     try {
       final (freed, _) = await (
         _release(),
         Future<void>.delayed(_minReleaseFeedback),
       ).wait;
       message = freed > 0
-          ? appLocalizations.memoryReleasedSize(freed.traffic.show)
+          ? appLocalizations.memoryReleasedSize(
+              '${dashboardTrafficValue(freed).value}${dashboardTrafficValue(freed).unit}',
+            )
           : appLocalizations.memoryReleased;
     } catch (error) {
-      commonPrint.log(
-        'releaseMemory error: $error',
-        logLevel: coreFailureLogLevel(error),
-      );
+      platform.logFailure('releaseMemory', error);
       message = appLocalizations.releaseMemoryFailed;
-      level = MessageLevel.error;
+      success = false;
     }
     if (!mounted) {
       return;
     }
     setState(() => _isReleasing = false);
-    context.showNotifier(message, level: level);
+    platform.showMessage(context, message, success);
   }
 
   List<Widget> _appItems(
@@ -471,7 +414,7 @@ class _MemorySection extends StatelessWidget {
         ListHeader(
           title: title,
           trailing: Text(
-            bytes.traffic.show,
+            '${dashboardTrafficValue(bytes).value}${dashboardTrafficValue(bytes).unit}',
             style: AppTextStyle.footnote
                 .of(context)
                 .copyWith(color: context.colorScheme.onSurfaceVariant),
@@ -503,7 +446,7 @@ class _MemoryOverview extends StatelessWidget {
   Widget build(BuildContext context) {
     final appLocalizations = context.appLocalizations;
     final colorScheme = context.colorScheme;
-    final total = snapshot.total.traffic;
+    final total = dashboardTrafficValue(snapshot.total);
     return Padding(
       padding: const EdgeInsets.fromLTRB(_inset, 8, _inset, 0),
       child: Column(
@@ -640,7 +583,7 @@ class _MemoryRow extends StatelessWidget {
         children: [
           Flexible(child: Text(label)),
           Text(
-            '${percent.fixed(decimals: 1)}%',
+            '${percent.toStringAsFixed(1).replaceFirst(RegExp(r'\.0$'), '')}%',
             style: AppTextStyle.subheadline
                 .of(context)
                 .copyWith(color: context.colorScheme.onSurfaceVariant),

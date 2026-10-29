@@ -3,11 +3,12 @@ import 'dart:collection';
 import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/models/models.dart';
-import 'package:fl_clash/providers/app.dart';
-import 'package:fl_clash/providers/state.dart';
+import 'package:fl_clash/common/snowflake.dart';
+import 'status_native.dart'
+    if (dart.library.js_interop) 'status_web.dart'
+    as platform;
+import 'package:fl_clash/enum/message.dart';
+import 'package:fl_clash/models/message.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/ui.dart';
 import 'package:material_ui/material_ui.dart';
@@ -32,7 +33,14 @@ const _messageMinHeight = 52.0;
 class StatusManager extends ConsumerStatefulWidget {
   final Widget child;
 
-  const StatusManager({super.key, required this.child});
+  const StatusManager({
+    super.key,
+    this.isMobile,
+    this.topOffset,
+    required this.child,
+  });
+  final bool? isMobile;
+  final double? topOffset;
 
   @override
   ConsumerState<StatusManager> createState() => StatusManagerState();
@@ -55,7 +63,8 @@ class StatusManagerState extends ConsumerState<StatusManager> {
     super.dispose();
   }
 
-  int get _maxVisibleMessages => ref.read(isMobileViewProvider)
+  int get _maxVisibleMessages =>
+      (widget.isMobile ?? platform.isMobile(ref, context))
       ? _mobileMaxVisibleMessages
       : _desktopMaxVisibleMessages;
 
@@ -79,7 +88,7 @@ class StatusManagerState extends ConsumerState<StatusManager> {
       duration: _resolveDuration(level, actionState),
       actionState: actionState,
     );
-    commonPrint.log('message: $text');
+    platform.logMessage(text);
     if (_mergeMessage(commonMessage)) {
       return;
     }
@@ -243,7 +252,7 @@ class StatusManagerState extends ConsumerState<StatusManager> {
         widget.child,
         Consumer(
           builder: (_, ref, child) {
-            final top = ref.watch(overlayTopOffsetProvider);
+            final top = widget.topOffset ?? platform.topOffset(ref, context);
             return Container(
               margin: EdgeInsets.only(
                 top: top + MediaQuery.viewPaddingOf(context).top + 8,

@@ -10,10 +10,19 @@ import 'package:fl_clash/l10n/ui.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
 import 'package:fl_clash/ui/form_row.dart';
 import 'package:fl_clash/ui/ui.dart';
+import 'package:fl_clash/ui/navigation_frame.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, listEquals;
 import 'package:material_ui/material_ui.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'client.dart';
+import 'proxies.dart';
+import 'dashboard_page.dart';
+import 'table_widths.dart';
+import 'package:fl_clash/widgets/table_widths_source.dart';
+import 'package:fl_clash/manager/status_manager.dart';
+import 'package:fl_clash/widgets/feedback.dart';
+import 'package:fl_clash/widgets/home_navigation_shell.dart';
 import 'setting_labels.dart';
 
 part 'views.dart';
@@ -39,6 +48,11 @@ class RemoteApplication extends StatefulWidget {
 class _RemoteApplicationState extends State<RemoteApplication> {
   late final _client = widget.client ?? RemoteControlClient();
   Timer? _timer;
+  final _navigatorKey = GlobalKey<NavigatorState>();
+  late final _widths = RemoteTableWidths(_client, (_) {
+    final context = _navigatorKey.currentContext;
+    if (context != null) showAppFeedback(context, AppLocalizations.of(context).remoteOperationFailed, level: MessageLevel.error);
+  });
 
   @override
   void initState() {
@@ -58,87 +72,109 @@ class _RemoteApplicationState extends State<RemoteApplication> {
 
   @override
   Widget build(BuildContext context) {
-    return ListenableBuilder(
-      listenable: _client,
-      builder: (context, _) {
-        final config = _map(_client.state?['config']);
-        final theme = _map(config['themeProps']);
-        final locale = _map(config['appSettingProps'])['locale'] as String?;
-        final parts = locale?.split(RegExp('[-_]'));
-        final seeds = _map(_client.state?['themeSeeds']);
-        ThemeData appTheme(Brightness brightness) => buildAppTheme(
-          colorScheme: seededColorScheme(
-            seedColor: Color(
-              (theme['primaryColor'] as num?)?.toInt() ??
-                  (seeds[brightness.name] as num?)?.toInt() ??
-                  0xff007aff,
-            ),
-            brightness: brightness,
-            style:
-                ColorStyle.values.asNameMap()[theme['colorStyle']] ??
-                ColorStyle.vivid,
-          ).toPureBlack(theme['pureBlack'] == true),
-          platform: defaultTargetPlatform,
-          locales: WidgetsBinding.instance.platformDispatcher.locales,
-          fontFamily: theme['systemFontFamily'] as String?,
-        );
-        return MaterialApp(
+    return ProviderScope(
+      overrides: [tableWidthsSourceProvider.overrideWithValue(_widths)],
+      child: ListenableBuilder(
+        listenable: _client,
+        builder: (context, _) {
+          final config = _map(_client.state?['config']);
+          final theme = _map(config['themeProps']);
+          final locale = _map(config['appSettingProps'])['locale'] as String?;
+          final parts = locale?.split(RegExp('[-_]'));
+          final seeds = _map(_client.state?['themeSeeds']);
+          ThemeData appTheme(Brightness brightness) => buildAppTheme(
+            colorScheme: seededColorScheme(
+              seedColor: Color(
+                (theme['primaryColor'] as num?)?.toInt() ??
+                    (seeds[brightness.name] as num?)?.toInt() ??
+                    0xff007aff,
+              ),
+              brightness: brightness,
+              style:
+                  ColorStyle.values.asNameMap()[theme['colorStyle']] ??
+                  ColorStyle.vivid,
+            ).toPureBlack(theme['pureBlack'] == true),
+            platform: switch (_client.state?['platform']) { 'macos' => TargetPlatform.macOS, 'windows' => TargetPlatform.windows, 'linux' => TargetPlatform.linux, 'android' => TargetPlatform.android, _ => defaultTargetPlatform },
+            locales: WidgetsBinding.instance.platformDispatcher.locales,
+            fontFamily: theme['systemFontFamily'] as String?,
+          );
+          return MaterialApp(
+            navigatorKey: _navigatorKey,
           title: 'FlClash',
-          initialRoute: '/',
-          onUnknownRoute: (_) => MaterialPageRoute<void>(
-            settings: const RouteSettings(name: '/'),
-            builder: (_) => _RemoteHome(client: _client),
-          ),
-          debugShowCheckedModeBanner: false,
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            AppUiLocalizations.delegate,
-            ...GlobalMaterialLocalizations.delegates,
-          ],
-          supportedLocales: AppLocalizations.delegate.supportedLocales,
-          locale: parts == null || parts.first.isEmpty
-              ? null
-              : Locale(parts.first, parts.length > 1 ? parts[1] : null),
-          theme: appTheme(Brightness.light),
-          darkTheme: appTheme(Brightness.dark),
-          themeMode: switch (theme['themeMode']) {
-            'light' => ThemeMode.light,
-            'dark' => ThemeMode.dark,
-            _ => ThemeMode.system,
-          },
-          scrollBehavior: const BaseScrollBehavior(),
-          builder: (context, child) => LayoutBuilder(
-            builder: (context, constraints) => ViewScope(
-              size: constraints.biggest,
-              isMobile: constraints.maxWidth < 600,
-              child: MeasureScope(
-                measure: Measure.of(
-                  context,
-                  MediaQuery.textScalerOf(context).scale(1),
+            initialRoute: '/',
+            onUnknownRoute: (_) => MaterialPageRoute<void>(
+              settings: const RouteSettings(name: '/'),
+              builder: (_) => _RemoteHome(client: _client),
+            ),
+            debugShowCheckedModeBanner: false,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              AppUiLocalizations.delegate,
+              ...GlobalMaterialLocalizations.delegates,
+            ],
+            supportedLocales: AppLocalizations.delegate.supportedLocales,
+            locale: parts == null || parts.first.isEmpty
+                ? null
+                : Locale(parts.first, parts.length > 1 ? parts[1] : null),
+            theme: appTheme(Brightness.light),
+            darkTheme: appTheme(Brightness.dark),
+            themeMode: switch (theme['themeMode']) {
+              'light' => ThemeMode.light,
+              'dark' => ThemeMode.dark,
+              _ => ThemeMode.system,
+            },
+            scrollBehavior: const BaseScrollBehavior(),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(
+                  (_map(theme['textScale'])['enable'] == true
+                          ? (_map(theme['textScale'])['scale'] as num?)
+                                    ?.toDouble() ??
+                                1
+                          : MediaQuery.textScalerOf(context).scale(1))
+                      .clamp(minTextScale, maxTextScale),
                 ),
-                child: SurfaceScope(
-                  level: SurfaceLevel.page,
-                  child: LiquidGlassScope(
-                    enabled:
-                        theme['liquidGlass'] != null &&
-                        theme['liquidGlass'] != 'none',
-                    quality: theme['liquidGlass'] == 'ultra'
-                        ? LiquidGlassQuality.ultra
-                        : LiquidGlassQuality.standard,
-                    child: LiquidGlassHost(
-                      enabled:
-                          theme['liquidGlass'] != null &&
-                          theme['liquidGlass'] != 'none',
-                      child: child!,
+              ),
+              child: Builder(
+                builder: (context) => LayoutBuilder(
+                  builder: (context, constraints) => ViewScope(
+                    size: constraints.biggest,
+                    isMobile: constraints.maxWidth <= 600,
+                    child: MeasureScope(
+                      measure: Measure.of(
+                        context,
+                        MediaQuery.textScalerOf(context).scale(1),
+                      ),
+                      child: SurfaceScope(
+                        level: SurfaceLevel.page,
+                        child: LiquidGlassScope(
+                          enabled:
+                              theme['liquidGlass'] != null &&
+                              theme['liquidGlass'] != 'none',
+                          quality: theme['liquidGlass'] == 'ultra'
+                              ? LiquidGlassQuality.ultra
+                              : LiquidGlassQuality.standard,
+                          child: LiquidGlassHost(
+                            enabled:
+                                theme['liquidGlass'] != null &&
+                                theme['liquidGlass'] != 'none',
+                            child: StatusManager(
+                              isMobile: constraints.maxWidth <= mobileNavigationMaxWidth,
+                              topOffset: pageToolbarHeight,
+                              child: child!,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-          home: _RemoteHome(client: _client),
-        );
-      },
+            home: _RemoteHome(client: _client),
+          );
+        },
+      ),
     );
   }
 }
@@ -156,7 +192,6 @@ class _RemoteHomeState extends State<_RemoteHome> {
   final _secret = TextEditingController();
   int _page = 0;
   bool _expanded = true;
-  Map<String, Object?> _delayResults = {};
 
   RemoteControlClient get client => widget.client;
   AppLocalizations get l => AppLocalizations.of(context);
@@ -182,9 +217,7 @@ class _RemoteHomeState extends State<_RemoteHome> {
             ? _map(error.response?.data)['error']?.toString() ??
                   l.remoteConnectionLost
             : error.toString();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(message)));
+        showAppFeedback(context, message, level: MessageLevel.error);
       }
       return null;
     }
@@ -195,10 +228,6 @@ class _RemoteHomeState extends State<_RemoteHome> {
     Map<String, Object?> args = const {},
   ]) async {
     await _run(() => client.command(command, args));
-  }
-
-  void _storeDelay(String name, Object? value) {
-    setState(() => _delayResults = {..._delayResults, name: value});
   }
 
   @override
@@ -245,63 +274,86 @@ class _RemoteHomeState extends State<_RemoteHome> {
       SidebarDestination(glyph: AppGlyphs.resources, label: l.resources),
       SidebarDestination(glyph: AppGlyphs.settings, label: l.settings),
     ];
+    final mobile = MediaQuery.sizeOf(context).width <= mobileNavigationMaxWidth;
+    final app = _map(config['appSettingProps']);
+    final pages = mobile
+        ? [0, 1, 2, 9]
+        : [0, 1, 2, 3, if (app['openLogs'] == true) 6, 9];
+    final allDestinations = [
+      ...destinations,
+      SidebarDestination(glyph: AppGlyphs.tools, label: l.tools),
+    ];
+    final shownDestinations = [
+      for (final index in pages) allDestinations[index],
+    ];
+    final selected = pages.indexOf(_page);
     return Scaffold(
       body: SafeArea(
-        child: Row(
-          children: [
-            NavigationSidebar(
-              destinations: destinations,
-              selectedIndex: _page,
-              expanded: MediaQuery.sizeOf(context).width >= 900 && _expanded,
-              onSelected: (index) => setState(() => _page = index),
-              onToggle: MediaQuery.sizeOf(context).width >= 900
-                  ? () => setState(() => _expanded = !_expanded)
-                  : null,
-            ),
-            Expanded(
-              child: Column(
-                children: [
-                  if (client.error != null)
-                    MaterialBanner(
-                      content: Text(l.remoteConnectionLost),
-                      actions: [
-                        TextButton(
-                          onPressed: client.refresh,
-                          child: Text(l.retry),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            setState(() {
-                              client.state = null;
-                              client.secret = '';
-                            });
-                          },
-                          child: Text(l.externalControllerSecret),
-                        ),
-                      ],
-                    ),
-                  if (client.busy) const LinearProgressIndicator(),
-                  Expanded(
-                    child: switch (_page) {
-                      0 => _dashboard(),
-                      1 => _proxies(),
-                      2 => _profiles(),
-                      3 => _feed('/api/connections', l.connections),
-                      4 => _feed('/api/requests', l.requests),
-                      5 => _feed('/api/dns', 'DNS'),
-                      6 => _feed('/api/logs', l.logs),
-                      7 => _resources(),
-                      _ => _settings(),
-                    },
+        child: NavigationFrame(
+          hasSidebar: !mobile,
+          sidebar: NavigationSidebar(
+            destinations: shownDestinations,
+            selectedIndex: selected < 0 ? pages.length - 1 : selected,
+            expanded: MediaQuery.sizeOf(context).width > 840 && _expanded,
+            onSelected: (index) => setState(() => _page = pages[index]),
+            onToggle: MediaQuery.sizeOf(context).width > 840
+                ? () => setState(() => _expanded = !_expanded)
+                : null,
+          ),
+          child: HomeNavigationShell(
+            isMobile: mobile,
+            floating: app['floatingNavigationBar'] != false,
+            destinations: [
+              for (final item in shownDestinations)
+                NavigationDockDestination(glyph: item.glyph, label: item.label),
+            ],
+            selectedIndex: selected < 0 ? pages.length - 1 : selected,
+            onSelected: (index) => setState(() => _page = pages[index]),
+            child: Column(
+              children: [
+                if (client.error != null)
+                  MaterialBanner(
+                    content: Text(l.remoteConnectionLost),
+                    actions: [
+                      TextButton(
+                        onPressed: client.refresh,
+                        child: Text(l.retry),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            client.state = null;
+                            client.secret = '';
+                          });
+                        },
+                        child: Text(l.externalControllerSecret),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                if (client.busy && _page > 1) const LinearProgressIndicator(),
+                Expanded(
+                  child: switch (_page) {
+                    0 => _dashboard(),
+                    1 => _proxies(),
+                    2 => _profiles(),
+                    3 => _feed('/api/connections', l.connections),
+                    4 => _feed('/api/requests', l.requests),
+                    5 => _feed('/api/dns', 'DNS'),
+                    6 => _feed('/api/logs', l.logs),
+                    7 => _resources(),
+                    8 => _settings(),
+                    _ => _tools(),
+                  },
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
+
+  void selectPage(int page) => setState(() => _page = page);
 
   Future<void> _connect() async {
     if (_secret.text.isNotEmpty) client.secret = _secret.text.trim();
@@ -332,10 +384,6 @@ class _RemoteHomeState extends State<_RemoteHome> {
       ),
     );
   }
-
-  Widget _card(Widget child) => CommonCard(
-    child: Padding(padding: const EdgeInsets.all(16), child: child),
-  );
 }
 
 Map<String, dynamic> _map(Object? value) =>

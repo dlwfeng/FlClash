@@ -1,11 +1,11 @@
 import 'dart:math' as math;
 import 'dart:ui' show lerpDouble;
 
-import 'package:fl_clash/common/common.dart';
-import 'package:fl_clash/enum/enum.dart';
-import 'package:fl_clash/providers/providers.dart';
+import 'package:fl_clash/l10n/context.dart';
+import 'package:fl_clash/common/iterable.dart';
+import 'package:fl_clash/enum/dashboard.dart';
 import 'package:fl_clash/ui/icons/icons.dart';
-import 'package:fl_clash/widgets/widgets.dart';
+import 'package:fl_clash/ui/ui.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,7 +13,10 @@ import 'package:material_ui/material_ui.dart';
 
 import 'layout.dart';
 import 'style.dart';
-import 'widget_registry.dart';
+import 'widget_labels.dart';
+import 'edit_native.dart'
+    if (dart.library.js_interop) 'edit_web.dart'
+    as platform;
 
 const _rowHeight = 64.0;
 const _rowGap = 8.0;
@@ -39,6 +42,8 @@ class DashboardEditor extends ConsumerStatefulWidget {
     required this.padding,
     required this.gap,
     required this.onDone,
+    this.onChanged,
+    this.cardBuilder,
   });
 
   final SupportPlatform platform;
@@ -49,6 +54,8 @@ class DashboardEditor extends ConsumerStatefulWidget {
   final EdgeInsets padding;
   final double gap;
   final VoidCallback onDone;
+  final ValueChanged<List<DashboardWidget>>? onChanged;
+  final Widget Function(DashboardWidget)? cardBuilder;
 
   @override
   ConsumerState<DashboardEditor> createState() => _DashboardEditorState();
@@ -96,16 +103,11 @@ class _DashboardEditorState extends ConsumerState<DashboardEditor>
 
   void _save() {
     final shown = _shown;
-    ref
-        .read(appSettingProvider.notifier)
-        .update(
-          (state) => state.copyWith(
-            dashboardWidgets: _keepingOtherPlatforms(
-              state.dashboardWidgets,
-              shown,
-            ),
-          ),
-        );
+    if (widget.onChanged case final changed?) {
+      changed(shown);
+    } else {
+      platform.save(ref, (saved) => _keepingOtherPlatforms(saved, shown));
+    }
   }
 
   /// Cards this platform cannot show stay where they were among the rest.
@@ -125,6 +127,9 @@ class _DashboardEditorState extends ConsumerState<DashboardEditor>
     }
     return result;
   }
+
+  Widget _card(DashboardWidget card) =>
+      widget.cardBuilder?.call(card) ?? platform.card(card);
 
   void _remove(DashboardWidget card) {
     setState(() => _leaving.add(card));
@@ -199,6 +204,7 @@ class _DashboardEditorState extends ConsumerState<DashboardEditor>
                       index: index,
                       sway: sway,
                       onRemove: card.removable ? () => _remove(card) : null,
+                      child: _card(card),
                     ),
                   ),
                 );
@@ -214,7 +220,7 @@ class _DashboardEditorState extends ConsumerState<DashboardEditor>
                     child: AbsorbPointer(
                       child: RepaintBoundary(
                         key: widget.cardKeyOf(cards[index]),
-                        child: cards[index].card,
+                        child: _card(cards[index]),
                       ),
                     ),
                   ),
@@ -404,6 +410,7 @@ class _PresenceState extends State<_Presence>
 class _EditableCard extends StatelessWidget {
   const _EditableCard({
     required this.item,
+    required this.child,
     required this.cardKey,
     required this.index,
     required this.sway,
@@ -411,6 +418,7 @@ class _EditableCard extends StatelessWidget {
   });
 
   final DashboardWidget item;
+  final Widget child;
   final GlobalKey cardKey;
   final int index;
   final Animation<double>? sway;
@@ -420,7 +428,7 @@ class _EditableCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = context.colorScheme;
     final card = AbsorbPointer(
-      child: RepaintBoundary(key: cardKey, child: item.card),
+      child: RepaintBoundary(key: cardKey, child: child),
     );
     final onRemove = this.onRemove;
     final content = Stack(

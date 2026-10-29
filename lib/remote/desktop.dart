@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:isolate';
@@ -15,6 +16,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 
 import 'server.dart';
+import 'dashboard_watch.dart';
+import 'package:fl_clash/common/applied_config_counts.dart';
+import 'package:fl_clash/common/ip_quality.dart';
+import 'package:fl_clash/providers/ip_quality.dart';
+import 'package:fl_clash/common/service_probe.dart';
+import 'package:fl_clash/providers/outbound_ip.dart';
+import 'package:fl_clash/providers/service_status.dart';
 
 class DesktopRemoteControl {
   DesktopRemoteControl(this.container) {
@@ -50,7 +58,12 @@ class DesktopRemoteControl {
 
   Future<void> start() => server.start();
 
-  Future<void> close() => server.close();
+  Future<void> close() async {
+    _dashboardWatch?.dispose();
+    await server.close();
+  }
+
+  DashboardWatch? _dashboardWatch;
 
   Uri get uri => Uri(
     scheme: 'http',
@@ -86,6 +99,9 @@ class DesktopRemoteControl {
     if (method == 'GET') {
       return switch (path) {
         '/api/state' => _state(),
+        '/api/dashboard' => await _dashboard(),
+        '/api/dashboard/memory' => await _memory(),
+        '/api/dashboard/probes' => _dashboardProbes(),
         '/api/connections' => await _core.getConnections(),
         '/api/logs' => container.read(logsProvider).list,
         '/api/requests' => container.read(requestsProvider).list,
@@ -126,6 +142,7 @@ class DesktopRemoteControl {
     final profile = container.read(currentProfileProvider);
     return {
       'protocol': 1,
+      'dashboardProtocol': 1,
       'version': globalState.packageInfo.version,
       'platform': Platform.operatingSystem,
       'themeSeeds': {
@@ -139,14 +156,142 @@ class DesktopRemoteControl {
       'safeMode': safeModeBuild,
       'coreStatus': container.read(coreStatusProvider).name,
       'running': container.read(isStartProvider),
+      'suspended': container.read(suspendProvider),
       'config': _configJson(container.read(configProvider)),
       'profiles': container.read(profilesProvider),
       'groups': container.read(groupsProvider),
       'selectedMap': profile?.selectedMap ?? const {},
       'delays': container.read(delayDataSourceProvider),
       'traffic': container.read(trafficsProvider).list.lastOrNull,
+      'trafficHistory': container.read(trafficsProvider).list,
+      'trafficRevision': container.read(trafficsProvider).revision,
+      'localIp': container.read(localIpProvider),
+      'runTime': container.read(runTimeProvider),
+      'requestCount': container.read(requestCountProvider),
+      'dnsQueryCount': container.read(dnsQueryCountProvider),
+      'updatingKeys': container.read(updatingKeysProvider).toList(),
       'totalTraffic': container.read(totalTrafficProvider),
     };
+  }
+
+  Map<String, Object?> _dashboardProbes() {
+    final outbound = container
+        .read(outboundIpProbeProvider)
+        .entryOf(routedOutbound);
+    final services = container.read(serviceStatusProvider);
+    return {
+      'outbound': {
+        'phase': outbound.phase.name,
+        'value': switch (outbound.value) {
+          null => null,
+          final info => {'ip': info.ip, 'countryCode': info.countryCode},
+        },
+      },
+      'quality': switch (outbound.value) {
+        null => null,
+        final info => _quality(info.ip),
+      },
+      'nodes': {
+        for (final check in services.entries.values)
+          if (check.value?.node case final node?)
+            node: switch (container
+                .read(outboundIpProbeProvider)
+                .valueOf(node)) {
+              null => null,
+              final ip => {
+                'ip': ip.ip,
+                'countryCode': ip.countryCode,
+                'quality': _quality(ip.ip),
+              },
+            },
+      },
+      'services': [
+        for (final target in container.read(enabledServiceTargetsProvider))
+          {
+            'id': target.id,
+            'phase': services.entryOf(target).phase.name,
+            'value': switch (services.valueOf(target)) {
+              null => null,
+              final check => {
+                'status': check.status.id,
+                'delay': check.delay,
+                'chains': check.chains,
+                'region': check.region,
+                'checkedAt': check.checkedAt?.toIso8601String(),
+              },
+            },
+          },
+      ],
+    };
+  }
+
+  Map<String, Object?> _quality(String ip) {
+    if (!container.exists(ipQualityProvider(ip))) {
+      return {'value': null, 'loading': true, 'failed': false};
+    }
+    final result = container.read(ipQualityProvider(ip));
+    return {
+      'value': result.value,
+      'loading': result.isLoading,
+      'failed': result.hasError,
+      'failures': [
+        if (result.error case IpQualityLookupException(:final failures))
+          for (final failure in failures)
+            {'source': failure.source.name, 'status': failure.status.name},
+      ],
+    };
+  }
+
+  Future<Map<String, Object?>> _dashboard() async {
+    final counts = await loadAppliedConfigCounts();
+    final providers = container.read(providersProvider);
+    final connections =
+        container.read(coreStatusProvider) == CoreStatus.connected
+        ? await _core.getConnections()
+        : const <TrackerInfo>[];
+    return {
+      ..._dashboardProbes(),
+      'memory': await _memory(),
+      'statsFailed': counts == null,
+      'stats': counts == null
+          ? null
+          : {
+              'groups': counts.groups,
+              'proxies':
+                  counts.proxies +
+                  providers
+                      .where((provider) => provider.type == 'Proxy')
+                      .fold(0, (sum, provider) => sum + provider.count),
+              'rules': counts.rules,
+              'providers': providers.length,
+            },
+      'connections': await Isolate.run(
+        () => (connections.toList()..sort((a, b) => b.start.compareTo(a.start)))
+            .take(100)
+            .toList(),
+      ),
+      'connectionCount': connections.length,
+      'providers': providers,
+      'requests': container
+          .read(requestsProvider)
+          .list
+          .reversed
+          .take(100)
+          .toList(),
+      'dns': container
+          .read(dnsQueriesProvider)
+          .list
+          .reversed
+          .take(100)
+          .toList(),
+    };
+  }
+
+  Future<Map<String, Object?>> _memory() async {
+    final core = container.read(coreStatusProvider) == CoreStatus.connected
+        ? await _core.getMemoryStats()
+        : null;
+    return {'app': ProcessInfo.currentRss, 'core': core};
   }
 
   static Map<String, Object?> _configJson(Config config) {
@@ -180,6 +325,49 @@ class DesktopRemoteControl {
 
   Future<Object?> _command(Map<String, Object?> args) async {
     switch (args['command']) {
+      case 'watchDashboard':
+        final session = _string(args, 'session');
+        if (session.length > 128) {
+          throw const RemoteApiException(400, 'Invalid dashboard session');
+        }
+        final shown = args['shownCount'] is int ? args['shownCount'] as int : 4;
+        if (shown < 0 || shown > ServiceTarget.values.length) {
+          throw const RemoteApiException(400, 'Invalid service count');
+        }
+        (_dashboardWatch ??= DashboardWatch(
+          container,
+        )).renew(session, shownCount: shown, details: args['details'] == true);
+        return null;
+      case 'unwatchDashboard':
+        _dashboardWatch?.remove(_string(args, 'session'));
+        return null;
+      case 'refreshDashboardQuality':
+        final ip = _string(args, 'ip');
+        if (InternetAddress.tryParse(ip) == null) {
+          throw const RemoteApiException(400, 'Invalid IP address');
+        }
+        container.invalidate(ipQualityProvider(ip));
+        return null;
+      case 'refreshDashboardOutbound':
+        container.read(outboundIpProbeProvider.notifier).refresh(const [
+          routedOutbound,
+        ]);
+        return null;
+      case 'refreshDashboardServices':
+        container
+            .read(serviceStatusProvider.notifier)
+            .refresh(
+              args['target'] is String
+                  ? [
+                      ServiceTarget.byId(_string(args, 'target')) ??
+                          (throw const RemoteApiException(
+                            400,
+                            'Unknown service',
+                          )),
+                    ]
+                  : container.read(enabledServiceTargetsProvider),
+            );
+        return null;
       case 'running':
         return container
             .read(setupActionProvider.notifier)

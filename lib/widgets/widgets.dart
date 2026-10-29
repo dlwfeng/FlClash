@@ -9,3 +9,4 @@ export 'record.dart';
 export 'record_table.dart';
 export 'subscription_info_view.dart';
 export 'package:fl_clash/ui/ui.dart';
+export 'package_icon.dart';
