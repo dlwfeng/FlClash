@@ -1359,6 +1359,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
       "Ne compter que le trafic proxy",
     ),
+    "openLinkFailed": MessageLookupByLibrary.simpleMessage(
+      "Impossible d’ouvrir le lien.",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("Facultatif"),
     "options": MessageLookupByLibrary.simpleMessage("Options"),
     "other": MessageLookupByLibrary.simpleMessage("Autre"),
@@ -1967,6 +1970,34 @@ class MessageLookup extends MessageLookupByLibrary {
     "tab": MessageLookupByLibrary.simpleMessage("Onglet"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage(
       "Animation des onglets",
+    ),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleDialerProxyDesc": MessageLookupByLibrary.simpleMessage(
+      "En automatique, la sortie par défaut du profil est utilisée pour que le tunnel ne se connecte pas à lui-même.",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Rejoint votre tailnet via la sortie Tailscale du cœur. Les réglages sont enregistrés à part du profil : une mise à jour d’abonnement ne les écrase pas.",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage(
+      "Se connecter à Tailscale",
+    ),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "Terminez l’autorisation dans le navigateur, puis revenez.",
+    ),
+    "tailscaleStateNeedsLogin": MessageLookupByLibrary.simpleMessage(
+      "Connexion requise",
+    ),
+    "tailscaleStateNeedsMachineAuth": MessageLookupByLibrary.simpleMessage(
+      "En attente d’approbation",
+    ),
+    "tailscaleStateNoState": MessageLookupByLibrary.simpleMessage(
+      "Non démarré",
+    ),
+    "tailscaleStateRunning": MessageLookupByLibrary.simpleMessage("Connecté"),
+    "tailscaleStateStarting": MessageLookupByLibrary.simpleMessage("Connexion"),
+    "tailscaleStateStopped": MessageLookupByLibrary.simpleMessage("Arrêté"),
+    "tailscaleStatusHint": MessageLookupByLibrary.simpleMessage(
+      "FlClash doit être en cours d’exécution avec le profil actuel appliqué. Touchez pour vérifier à nouveau.",
     ),
     "tapIconToRetry": MessageLookupByLibrary.simpleMessage(
       "Appuyez sur l’icône pour réessayer",

@@ -972,5 +972,18 @@
   "remoteUnavailable": "Web 控制不可用，请检查 9091 端口是否被占用。",
   "remoteSettingsConflict": "这些设置已在桌面端更改，请重新打开表单后保存。",
   "remoteFeatureUnavailable": "Web 端暂未实现“{feature}”。",
-  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}},
+  "tailscale": "Tailscale",
+  "tailscaleEnableDesc": "通过内核的 Tailscale 出站接入 Tailnet。设置独立于机场配置保存，订阅更新不会覆盖。",
+  "tailscaleStatusHint": "需要 FlClash 正在运行且当前配置已应用。点击可重新检查。",
+  "tailscaleLogin": "登录 Tailscale",
+  "tailscaleLoginDesc": "在浏览器中完成授权后返回。",
+  "tailscaleDialerProxyDesc": "自动使用配置的默认出口，避免隧道回环。",
+  "tailscaleStateNoState": "未启动",
+  "tailscaleStateNeedsLogin": "需要登录",
+  "tailscaleStateNeedsMachineAuth": "等待管理员批准",
+  "tailscaleStateStarting": "正在连接",
+  "tailscaleStateRunning": "已连接",
+  "tailscaleStateStopped": "已停止",
+  "openLinkFailed": "无法打开链接。"
 }

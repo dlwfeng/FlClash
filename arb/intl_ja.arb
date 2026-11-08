@@ -972,5 +972,18 @@
   "remoteUnavailable": "Web コントロールを利用できません。ポート 9091 が使用中でないか確認してください。",
   "remoteSettingsConflict": "デスクトップ側で設定が変更されました。フォームを開き直して保存してください。",
   "remoteFeatureUnavailable": "Web では「{feature}」はまだ利用できません。",
-  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}},
+  "tailscale": "Tailscale",
+  "tailscaleEnableDesc": "Core の Tailscale アウトバウンドで tailnet に接続します。設定はプロファイルとは別に保存され、サブスクリプションの更新で上書きされません。",
+  "tailscaleStatusHint": "FlClash が起動し、現在のプロファイルが適用されている必要があります。タップで再確認します。",
+  "tailscaleLogin": "Tailscale にログイン",
+  "tailscaleLoginDesc": "ブラウザで認証を完了してから戻ってください。",
+  "tailscaleDialerProxyDesc": "自動ではプロファイルの既定の出口を使い、トンネルが自分自身に接続しないようにします。",
+  "tailscaleStateNoState": "未起動",
+  "tailscaleStateNeedsLogin": "ログインが必要です",
+  "tailscaleStateNeedsMachineAuth": "管理者の承認待ち",
+  "tailscaleStateStarting": "接続中",
+  "tailscaleStateRunning": "接続済み",
+  "tailscaleStateStopped": "停止",
+  "openLinkFailed": "リンクを開けませんでした。"
 }

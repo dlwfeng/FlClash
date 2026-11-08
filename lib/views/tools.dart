@@ -15,6 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'config/advanced.dart';
 import 'config/custom_resources.dart';
+import 'config/tailscale.dart';
 import 'developer.dart';
 import 'disclaimer.dart';
 import 'theme.dart';
@@ -59,6 +60,7 @@ class _ToolViewState extends ConsumerState<ToolsView> {
         if (system.isAndroid) const _AccessItem(),
         const _AdvancedConfigItem(),
         const _CustomResourcesItem(),
+        if (tailscaleModuleAvailable) const _TailscaleItem(),
         const _GeneralItem(),
       ],
       footer: [
@@ -211,6 +213,19 @@ class _AdvancedConfigItem extends StatelessWidget {
       leading: const GlyphIcon(AppGlyphs.wrench),
       title: Text(context.appLocalizations.advancedConfig),
       widget: const AdvancedConfigView(),
+    );
+  }
+}
+
+class _TailscaleItem extends StatelessWidget {
+  const _TailscaleItem();
+
+  @override
+  Widget build(BuildContext context) {
+    return ListItem.open(
+      leading: const GlyphIcon(AppGlyphs.vpn),
+      title: Text(context.appLocalizations.tailscale),
+      widget: const TailscalePage(),
     );
   }
 }

@@ -112,6 +112,12 @@ Group-wide delay testing and adding a node to local proxies currently keep their
 `remoteFeatureUnavailable` on use. Group tab and expansion state are local to the mounted Web page; they do not write
 the desktop profile. Other feature pages remain outstanding migrations. Do not describe the whole application as having completed UI/UX parity.
 
+The Tailscale settings page is shared as well: `lib/views/config/tailscale_page.dart` holds the rows, the state labels
+and the authorization link, `lib/views/config/tailscale.dart` lends it the native providers, and `lib/remote/tailscale.dart`
+the remote adapter. The module is built but gated to Android, so both the desktop item and the Web entry stay hidden;
+the Web server reports the same gate as `tailscaleSupported` and answers `tailscaleStatus`. Opening the module later
+needs no second page.
+
 All `/api/` paths require the controller secret as a bearer token. The server
 checks Host and Origin, limits JSON bodies, and never exposes arbitrary paths,
 raw IPC dispatch, shell commands, or general filesystem deletion. Profile file

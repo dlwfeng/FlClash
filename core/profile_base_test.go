@@ -84,6 +84,98 @@ func ruleStrings(cfg *config.Config) []string {
 	return rules
 }
 
+func TestMergeProfileBaseKeepsAddedProxies(t *testing.T) {
+	path := writeBaseProfile(t, baseProfile)
+	document, err := mergeProfileBase(&SetupBase{
+		Path:    path,
+		Overlay: `{"proxies":[{"name":"extra","type":"socks5","server":"127.0.0.1","port":1081}]}`,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var raw config.RawConfig
+	if err := document.Decode(&raw); err != nil {
+		t.Fatal(err)
+	}
+	if len(raw.Proxy) != 3 || raw.Proxy[2]["name"] != "extra" {
+		t.Fatalf("proxies = %v, want the two subscription proxies and extra", raw.Proxy)
+	}
+}
+
+func TestMergeProfileBaseReplacesAnAddedProxyWithTheSameName(t *testing.T) {
+	path := writeBaseProfile(t, baseProfile)
+	document, err := mergeProfileBase(&SetupBase{
+		Path:    path,
+		Overlay: `{"proxies":[{"name":"b","type":"socks5","server":"127.0.0.1","port":1082}]}`,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var raw config.RawConfig
+	if err := document.Decode(&raw); err != nil {
+		t.Fatal(err)
+	}
+	if len(raw.Proxy) != 2 {
+		t.Fatalf("proxies = %v, want no second proxy named b", raw.Proxy)
+	}
+	if raw.Proxy[1]["name"] != "b" || raw.Proxy[1]["type"] != "socks5" {
+		t.Fatalf("proxies[1] = %v, want the proxy the host added", raw.Proxy[1])
+	}
+}
+
+func TestLoadConfigWithBaseAddsTheTailscaleNodeAndItsRules(t *testing.T) {
+	previous := constant.Path.HomeDir()
+	home := t.TempDir()
+	constant.SetHomeDir(home)
+	t.Cleanup(func() { constant.SetHomeDir(previous) })
+	path := writeBaseProfile(t, baseProfile)
+	base, err := handleGetProfileBase(path)
+	if err != nil {
+		t.Fatalf("handleGetProfileBase = %v", err)
+	}
+	overlay := overlayOf(
+		t,
+		base,
+		[]string{
+			"IP-CIDR,100.64.0.0/10,Tailscale,no-resolve",
+			"DOMAIN-SUFFIX,ts.net,Tailscale",
+		},
+		map[string]any{
+			"proxies": []map[string]any{{
+				"name":         "Tailscale",
+				"type":         "tailscale",
+				"hostname":     "flclash",
+				"state-dir":    filepath.Join(home, "tailscale"),
+				"dialer-proxy": "g",
+			}},
+			"dns": map[string]any{
+				"enable":            true,
+				"nameserver":        []string{"223.5.5.5"},
+				"nameserver-policy": map[string]any{"+.ts.net": "tailscale://Tailscale"},
+			},
+		},
+	)
+
+	cfg, err := loadConfigWithBase(
+		&SetupBase{Path: path, Overlay: overlay},
+		filepath.Join(t.TempDir(), "config.yaml"),
+	)
+
+	if err != nil {
+		t.Fatalf("loadConfigWithBase = %v", err)
+	}
+	if cfg.Proxies["Tailscale"] == nil {
+		t.Fatalf("proxies = %v, want the node the overlay added", cfg.Proxies)
+	}
+	rules := ruleStrings(cfg)
+	if len(rules) != 5 || rules[0] != "IPCIDR,100.64.0.0/10,Tailscale" || rules[1] != "DomainSuffix,ts.net,Tailscale" {
+		t.Errorf("rules = %v, want the Tailnet rules before the profile's", rules)
+	}
+	if len(cfg.DNS.NameServerPolicy) != 1 {
+		t.Errorf("nameserver-policy = %+v, want the Tailnet suffix", cfg.DNS.NameServerPolicy)
+	}
+}
+
 func TestHandleGetProfileBaseLeavesTheBulkSectionsInTheCore(t *testing.T) {
 	path := writeBaseProfile(t, baseProfile)
 

@@ -36,6 +36,10 @@ class _RecordingCoreHandler extends CoreHandlerInterface {
     calls[method] = arguments;
     final result = switch (method) {
       CoreMethod.initClash => true as T,
+      CoreMethod.tailscaleStatus => {
+        'state': 'NeedsLogin',
+        'authUrl': 'https://login.tailscale.com/a/example',
+      },
       CoreMethod.getTraffic ||
       CoreMethod.getTotalTraffic => {'up': 12, 'down': 34},
       CoreMethod.asyncTestDelay => {
@@ -171,6 +175,14 @@ class _EmptyConfigCoreHandler extends _RecordingCoreHandler {
 }
 
 void main() {
+  test('Tailscale status carries the authorization URL', () async {
+    final handler = _RecordingCoreHandler();
+    final status = await handler.tailscaleStatus('tailscale');
+    expect(handler.calls[CoreMethod.tailscaleStatus], 'tailscale');
+    expect(status.state, 'NeedsLogin');
+    expect(status.authUrl, 'https://login.tailscale.com/a/example');
+  });
+
   test('method call keeps structured arguments', () async {
     final fixture =
         json.decode(

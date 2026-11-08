@@ -1067,6 +1067,7 @@ class MessageLookup extends MessageLookupByLibrary {
       "필요 시 실행은 제외된 Wi-Fi에서 프록시를 일시 중지합니다.",
     ),
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage("프록시 트래픽만 집계"),
+    "openLinkFailed": MessageLookupByLibrary.simpleMessage("링크를 열 수 없습니다."),
     "optional": MessageLookupByLibrary.simpleMessage("선택 사항"),
     "options": MessageLookupByLibrary.simpleMessage("옵션"),
     "other": MessageLookupByLibrary.simpleMessage("기타"),
@@ -1542,6 +1543,28 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("시스템 프록시"),
     "tab": MessageLookupByLibrary.simpleMessage("탭"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("탭 애니메이션"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleDialerProxyDesc": MessageLookupByLibrary.simpleMessage(
+      "자동은 프로필의 기본 아웃바운드를 사용해 터널이 스스로를 거치지 않게 합니다.",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "코어의 Tailscale 아웃바운드로 tailnet에 연결합니다. 설정은 프로필과 별도로 저장되어 구독을 업데이트해도 덮어쓰지 않습니다.",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("Tailscale 로그인"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "브라우저에서 인증을 마친 뒤 돌아오세요.",
+    ),
+    "tailscaleStateNeedsLogin": MessageLookupByLibrary.simpleMessage("로그인 필요"),
+    "tailscaleStateNeedsMachineAuth": MessageLookupByLibrary.simpleMessage(
+      "관리자 승인 대기 중",
+    ),
+    "tailscaleStateNoState": MessageLookupByLibrary.simpleMessage("시작 안 됨"),
+    "tailscaleStateRunning": MessageLookupByLibrary.simpleMessage("연결됨"),
+    "tailscaleStateStarting": MessageLookupByLibrary.simpleMessage("연결 중"),
+    "tailscaleStateStopped": MessageLookupByLibrary.simpleMessage("중지됨"),
+    "tailscaleStatusHint": MessageLookupByLibrary.simpleMessage(
+      "FlClash가 실행 중이고 현재 프로필이 적용되어 있어야 합니다. 탭하여 다시 확인하세요.",
+    ),
     "tapIconToRetry": MessageLookupByLibrary.simpleMessage("아이콘을 눌러 다시 시도"),
     "tapToAuthorize": MessageLookupByLibrary.simpleMessage("눌러서 허용"),
     "target": MessageLookupByLibrary.simpleMessage("대상"),

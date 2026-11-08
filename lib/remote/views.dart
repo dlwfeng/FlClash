@@ -19,6 +19,16 @@ extension _RemoteViews on _RemoteHomeState {
         title: Text(item.$3),
         onPressed: () => selectPage(item.$1),
       ),
+    if (state['tailscaleSupported'] == true)
+      DecorationListItem(
+        leading: const GlyphIcon(AppGlyphs.vpn),
+        title: Text(l.tailscale),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => RemoteTailscalePage(client: client),
+          ),
+        ),
+      ),
   ]);
 
   Widget _profiles() => _pageView(

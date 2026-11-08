@@ -1086,6 +1086,7 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
       "プロキシトラフィックのみ集計",
     ),
+    "openLinkFailed": MessageLookupByLibrary.simpleMessage("リンクを開けませんでした。"),
     "optional": MessageLookupByLibrary.simpleMessage("任意"),
     "options": MessageLookupByLibrary.simpleMessage("オプション"),
     "other": MessageLookupByLibrary.simpleMessage("その他"),
@@ -1567,6 +1568,30 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("システムプロキシ"),
     "tab": MessageLookupByLibrary.simpleMessage("タブ"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("タブアニメーション"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleDialerProxyDesc": MessageLookupByLibrary.simpleMessage(
+      "自動ではプロファイルの既定の出口を使い、トンネルが自分自身に接続しないようにします。",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Core の Tailscale アウトバウンドで tailnet に接続します。設定はプロファイルとは別に保存され、サブスクリプションの更新で上書きされません。",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("Tailscale にログイン"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "ブラウザで認証を完了してから戻ってください。",
+    ),
+    "tailscaleStateNeedsLogin": MessageLookupByLibrary.simpleMessage(
+      "ログインが必要です",
+    ),
+    "tailscaleStateNeedsMachineAuth": MessageLookupByLibrary.simpleMessage(
+      "管理者の承認待ち",
+    ),
+    "tailscaleStateNoState": MessageLookupByLibrary.simpleMessage("未起動"),
+    "tailscaleStateRunning": MessageLookupByLibrary.simpleMessage("接続済み"),
+    "tailscaleStateStarting": MessageLookupByLibrary.simpleMessage("接続中"),
+    "tailscaleStateStopped": MessageLookupByLibrary.simpleMessage("停止"),
+    "tailscaleStatusHint": MessageLookupByLibrary.simpleMessage(
+      "FlClash が起動し、現在のプロファイルが適用されている必要があります。タップで再確認します。",
+    ),
     "tapIconToRetry": MessageLookupByLibrary.simpleMessage("アイコンをタップして再試行"),
     "tapToAuthorize": MessageLookupByLibrary.simpleMessage("タップして許可"),
     "target": MessageLookupByLibrary.simpleMessage("宛先"),

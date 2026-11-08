@@ -154,6 +154,7 @@ class DesktopRemoteControl {
       },
       'ready': container.read(initProvider),
       'safeMode': safeModeBuild,
+      'tailscaleSupported': tailscaleModuleAvailable,
       'coreStatus': container.read(coreStatusProvider).name,
       'running': container.read(isStartProvider),
       'suspended': container.read(suspendProvider),
@@ -404,6 +405,9 @@ class DesktopRemoteControl {
         return null;
       case 'clearDnsCache':
         return _core.clearDnsCache();
+      case 'tailscaleStatus':
+        final status = await _core.tailscaleStatus(_string(args, 'name'));
+        return {'state': status.state, 'authUrl': status.authUrl};
       case 'selectProfile':
         final profile = _profile(args);
         container.read(currentProfileIdProvider.notifier).value = profile.id;

@@ -1364,6 +1364,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
       "Contar solo el tráfico del proxy",
     ),
+    "openLinkFailed": MessageLookupByLibrary.simpleMessage(
+      "No se pudo abrir el enlace.",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("Opcional"),
     "options": MessageLookupByLibrary.simpleMessage("Opciones"),
     "other": MessageLookupByLibrary.simpleMessage("Otros"),
@@ -1968,6 +1971,36 @@ class MessageLookup extends MessageLookupByLibrary {
     "tab": MessageLookupByLibrary.simpleMessage("Pestaña"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage(
       "Animación de pestañas",
+    ),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleDialerProxyDesc": MessageLookupByLibrary.simpleMessage(
+      "En automático usa la salida predeterminada del perfil, para que el túnel no se conecte a sí mismo.",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Se une a tu tailnet mediante la salida Tailscale del núcleo. Los ajustes se guardan aparte del perfil, así que una actualización de la suscripción no los sobrescribe.",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage(
+      "Iniciar sesión en Tailscale",
+    ),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "Termina la autorización en el navegador y vuelve.",
+    ),
+    "tailscaleStateNeedsLogin": MessageLookupByLibrary.simpleMessage(
+      "Se requiere iniciar sesión",
+    ),
+    "tailscaleStateNeedsMachineAuth": MessageLookupByLibrary.simpleMessage(
+      "Esperando aprobación",
+    ),
+    "tailscaleStateNoState": MessageLookupByLibrary.simpleMessage(
+      "No iniciado",
+    ),
+    "tailscaleStateRunning": MessageLookupByLibrary.simpleMessage("Conectado"),
+    "tailscaleStateStarting": MessageLookupByLibrary.simpleMessage(
+      "Conectando",
+    ),
+    "tailscaleStateStopped": MessageLookupByLibrary.simpleMessage("Detenido"),
+    "tailscaleStatusHint": MessageLookupByLibrary.simpleMessage(
+      "FlClash debe estar en ejecución con el perfil actual aplicado. Toca para comprobar de nuevo.",
     ),
     "tapIconToRetry": MessageLookupByLibrary.simpleMessage(
       "Toca el icono para reintentar",

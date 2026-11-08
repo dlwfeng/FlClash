@@ -1253,6 +1253,90 @@ void main() {
       },
     );
 
+    test(
+      'the Tailscale module adds its node and rules to the overlay',
+      () async {
+        final profile = Profile.normal(label: 'p');
+        final core = _MockCoreHandlerInterface();
+        when(() => core.getProfileBase(any())).thenAnswer(
+          (_) async => const ProfileBase(
+            config: {
+              'dns': {
+                'enable': true,
+                'nameserver': ['223.5.5.5'],
+              },
+            },
+            digest: 'd',
+            matchRules: ['MATCH,Proxy'],
+          ),
+        );
+        final scoped = ProviderContainer(
+          overrides: [
+            profilesProvider.overrideWith(() => TestProfiles([profile])),
+            currentProfileIdProvider.overrideWithBuild((_, _) => profile.id),
+            setupStateProvider.overrideWith(
+              (_, profileId) =>
+                  nullProfileSetupState.copyWith(profileId: profileId),
+            ),
+            coreHandlerProvider.overrideWithValue(CoreController.scoped(core)),
+            setupActionProvider.overrideWith(SetupAction.new),
+            appSettingProvider.overrideWithBuild(
+              (_, _) => defaultAppSettingProps.copyWith.tailscale(
+                enabled: true,
+                hostname: 'phone',
+              ),
+            ),
+          ],
+        );
+        addTearDown(scoped.dispose);
+
+        final overlay =
+            (await scoped
+                    .read(setupActionProvider.notifier)
+                    .getProfile(
+                      setupState: nullProfileSetupState.copyWith(
+                        profileId: profile.id,
+                      ),
+                      patchConfig: scoped.read(patchClashConfigProvider),
+                      moduleAvailable: true,
+                    ))
+                .base
+                ?.overlay;
+
+        final config = loadYaml(overlay!) as YamlMap;
+        final node = (config['proxies'] as YamlList).single as YamlMap;
+        expect(node['name'], 'Tailscale');
+        expect(node['hostname'], 'phone');
+        expect(node['dialer-proxy'], 'Proxy');
+        expect(node['state-dir'], endsWith('tailscale'));
+        expect(
+          (config['rules'] as YamlList).cast<String>(),
+          containsAllInOrder([
+            'IP-CIDR,100.64.0.0/10,Tailscale,no-resolve',
+            'IP-CIDR6,fd7a:115c:a1e0::/48,Tailscale,no-resolve',
+            'DOMAIN-SUFFIX,ts.net,Tailscale',
+          ]),
+        );
+        expect((config['dns'] as YamlMap)['nameserver-policy'], {
+          '+.ts.net': 'tailscale://Tailscale',
+        });
+
+        final desktop =
+            (await scoped
+                    .read(setupActionProvider.notifier)
+                    .getProfile(
+                      setupState: nullProfileSetupState.copyWith(
+                        profileId: profile.id,
+                      ),
+                      patchConfig: scoped.read(patchClashConfigProvider),
+                      moduleAvailable: false,
+                    ))
+                .base
+                ?.overlay;
+        expect((loadYaml(desktop!) as YamlMap)['proxies'], isNull);
+      },
+    );
+
     test('leaving an editor rebuilds the profile only once its inputs '
         'differ from the applied config', () async {
       final profile = Profile.normal(label: 'p');

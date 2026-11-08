@@ -1319,6 +1319,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
       "Учитывать только трафик прокси",
     ),
+    "openLinkFailed": MessageLookupByLibrary.simpleMessage(
+      "Не удалось открыть ссылку.",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("Необязательно"),
     "options": MessageLookupByLibrary.simpleMessage("Опции"),
     "other": MessageLookupByLibrary.simpleMessage("Другое"),
@@ -1908,6 +1911,36 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("Системный прокси"),
     "tab": MessageLookupByLibrary.simpleMessage("Вкладки"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("Анимация вкладок"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleDialerProxyDesc": MessageLookupByLibrary.simpleMessage(
+      "В режиме «Авто» используется выход профиля по умолчанию, чтобы туннель не подключался сам к себе.",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Подключает tailnet через Tailscale-выход ядра. Настройки хранятся отдельно от профиля, поэтому обновление подписки их не перезапишет.",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage("Войти в Tailscale"),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "Завершите авторизацию в браузере и вернитесь.",
+    ),
+    "tailscaleStateNeedsLogin": MessageLookupByLibrary.simpleMessage(
+      "Требуется вход",
+    ),
+    "tailscaleStateNeedsMachineAuth": MessageLookupByLibrary.simpleMessage(
+      "Ожидание одобрения",
+    ),
+    "tailscaleStateNoState": MessageLookupByLibrary.simpleMessage(
+      "Не запущено",
+    ),
+    "tailscaleStateRunning": MessageLookupByLibrary.simpleMessage("Подключено"),
+    "tailscaleStateStarting": MessageLookupByLibrary.simpleMessage(
+      "Подключение",
+    ),
+    "tailscaleStateStopped": MessageLookupByLibrary.simpleMessage(
+      "Остановлено",
+    ),
+    "tailscaleStatusHint": MessageLookupByLibrary.simpleMessage(
+      "FlClash должен быть запущен, а текущий профиль применён. Нажмите, чтобы проверить снова.",
+    ),
     "tapIconToRetry": MessageLookupByLibrary.simpleMessage(
       "Нажмите на значок, чтобы повторить",
     ),

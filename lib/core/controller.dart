@@ -171,6 +171,9 @@ class CoreController {
     return _interface.updateConfig(updateParams);
   }
 
+  Future<({String state, String? authUrl})> tailscaleStatus(String name) =>
+      _interface.tailscaleStatus(name);
+
   Future<String> setupConfig({
     required SetupParams params,
     Future<void> Function()? preloadInvoke,

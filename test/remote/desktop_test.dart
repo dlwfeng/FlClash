@@ -363,4 +363,14 @@ void main() {
       expect(container.read(davSettingProvider)?.password, 'new secret');
     },
   );
+  test('the Tailscale status command answers with the state and the link', () async {
+    when(() => core.tailscaleStatus('Tailscale')).thenAnswer((_) async => (state: 'NeedsLogin', authUrl: 'https://login.tailscale.com/a/example'));
+    final response = await send('POST', '/api/command', {'command': 'tailscaleStatus', 'name': 'Tailscale'});
+    expect(response.$1, 200);
+    expect(response.$2['data'], {'state': 'NeedsLogin', 'authUrl': 'https://login.tailscale.com/a/example'});
+  });
+  test('the state says whether this host exposes the module', () async {
+    final state = (await send('GET', '/api/state')).$2['data'] as Map;
+    expect(state['tailscaleSupported'], isFalse);
+  });
 }

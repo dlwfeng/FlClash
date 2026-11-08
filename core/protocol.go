@@ -29,6 +29,7 @@ const (
 	decodeShareLinksMethod         CoreMethod = "decodeShareLinks"
 	updateConfigMethod             CoreMethod = "updateConfig"
 	getProxiesMethod               CoreMethod = "getProxies"
+	tailscaleStatusMethod          CoreMethod = "tailscaleStatus"
 	changeProxyMethod              CoreMethod = "changeProxy"
 	getTrafficMethod               CoreMethod = "getTraffic"
 	getTotalTrafficMethod          CoreMethod = "getTotalTraffic"

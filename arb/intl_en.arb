@@ -972,5 +972,18 @@
   "remoteUnavailable": "Web control is unavailable. Check whether port 9091 is already in use.",
   "remoteSettingsConflict": "These settings changed on the desktop. Reopen this form before saving.",
   "remoteFeatureUnavailable": "{feature} is not available on Web yet.",
-  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}}
+  "@remoteFeatureUnavailable": {"placeholders": {"feature": {"type": "String"}}},
+  "tailscale": "Tailscale",
+  "tailscaleEnableDesc": "Joins your tailnet through the Core's Tailscale outbound. Stored apart from the profile, so a subscription update never overwrites it.",
+  "tailscaleStatusHint": "FlClash must be running with the current profile applied. Tap to check again.",
+  "tailscaleLogin": "Log in to Tailscale",
+  "tailscaleLoginDesc": "Finish authorizing in your browser, then come back.",
+  "tailscaleDialerProxyDesc": "Auto dials through the profile's default outbound, so the tunnel never dials itself.",
+  "tailscaleStateNoState": "Not started",
+  "tailscaleStateNeedsLogin": "Login required",
+  "tailscaleStateNeedsMachineAuth": "Waiting for approval",
+  "tailscaleStateStarting": "Connecting",
+  "tailscaleStateRunning": "Connected",
+  "tailscaleStateStopped": "Stopped",
+  "openLinkFailed": "Couldn't open the link."
 }

@@ -64,6 +64,8 @@ mixin CoreInterface {
 
   Future<ProxiesData> getProxies();
 
+  Future<({String state, String? authUrl})> tailscaleStatus(String name);
+
   Future<ChangeProxyResult> changeProxy(ChangeProxyParams changeProxyParams);
 
   Future<RouteSnapshot?> watchRoute(bool watch);
@@ -404,6 +406,25 @@ abstract class CoreHandlerInterface with CoreInterface {
     return data != null
         ? ProxiesData.fromJson(data)
         : const ProxiesData(proxies: {}, all: []);
+  }
+
+  @override
+  Future<({String state, String? authUrl})> tailscaleStatus(String name) async {
+    final data = await _invokeMethod<Map<String, dynamic>>(
+      method: CoreMethod.tailscaleStatus,
+      arguments: name,
+      timeout: const Duration(seconds: 40),
+    );
+    if (data == null || data['state'] is! String) {
+      throw CoreMethodException(
+        code: 'no_response',
+        message: 'Core did not answer ${CoreMethod.tailscaleStatus.name}',
+      );
+    }
+    return (
+      state: data['state'] as String,
+      authUrl: data['authUrl'] as String?,
+    );
   }
 
   @override

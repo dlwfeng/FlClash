@@ -8131,6 +8131,131 @@ class AppLocalizations {
       args: [feature],
     );
   }
+
+  /// `Tailscale`
+  String get tailscale {
+    return Intl.message('Tailscale', name: 'tailscale', desc: '', args: []);
+  }
+
+  /// `Joins your tailnet through the Core's Tailscale outbound. Stored apart from the profile, so a subscription update never overwrites it.`
+  String get tailscaleEnableDesc {
+    return Intl.message(
+      'Joins your tailnet through the Core\'s Tailscale outbound. Stored apart from the profile, so a subscription update never overwrites it.',
+      name: 'tailscaleEnableDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `FlClash must be running with the current profile applied. Tap to check again.`
+  String get tailscaleStatusHint {
+    return Intl.message(
+      'FlClash must be running with the current profile applied. Tap to check again.',
+      name: 'tailscaleStatusHint',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Log in to Tailscale`
+  String get tailscaleLogin {
+    return Intl.message(
+      'Log in to Tailscale',
+      name: 'tailscaleLogin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Finish authorizing in your browser, then come back.`
+  String get tailscaleLoginDesc {
+    return Intl.message(
+      'Finish authorizing in your browser, then come back.',
+      name: 'tailscaleLoginDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Auto dials through the profile's default outbound, so the tunnel never dials itself.`
+  String get tailscaleDialerProxyDesc {
+    return Intl.message(
+      'Auto dials through the profile\'s default outbound, so the tunnel never dials itself.',
+      name: 'tailscaleDialerProxyDesc',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Not started`
+  String get tailscaleStateNoState {
+    return Intl.message(
+      'Not started',
+      name: 'tailscaleStateNoState',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Login required`
+  String get tailscaleStateNeedsLogin {
+    return Intl.message(
+      'Login required',
+      name: 'tailscaleStateNeedsLogin',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Waiting for approval`
+  String get tailscaleStateNeedsMachineAuth {
+    return Intl.message(
+      'Waiting for approval',
+      name: 'tailscaleStateNeedsMachineAuth',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connecting`
+  String get tailscaleStateStarting {
+    return Intl.message(
+      'Connecting',
+      name: 'tailscaleStateStarting',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Connected`
+  String get tailscaleStateRunning {
+    return Intl.message(
+      'Connected',
+      name: 'tailscaleStateRunning',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Stopped`
+  String get tailscaleStateStopped {
+    return Intl.message(
+      'Stopped',
+      name: 'tailscaleStateStopped',
+      desc: '',
+      args: [],
+    );
+  }
+
+  /// `Couldn't open the link.`
+  String get openLinkFailed {
+    return Intl.message(
+      'Couldn\'t open the link.',
+      name: 'openLinkFailed',
+      desc: '',
+      args: [],
+    );
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<AppLocalizations> {

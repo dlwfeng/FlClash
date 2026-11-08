@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'client.dart';
 import 'proxies.dart';
 import 'dashboard_page.dart';
+import 'tailscale.dart';
 import 'table_widths.dart';
 import 'package:fl_clash/widgets/table_widths_source.dart';
 import 'package:fl_clash/manager/status_manager.dart';

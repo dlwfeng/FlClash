@@ -14,6 +14,20 @@ Map<String, dynamic> _$FilterToJson(_Filter instance) => <String, dynamic>{
   'regex': instance.regex,
 };
 
+_TailscaleProps _$TailscalePropsFromJson(Map<String, dynamic> json) =>
+    _TailscaleProps(
+      enabled: json['enabled'] as bool? ?? false,
+      hostname: json['hostname'] as String? ?? '',
+      dialerProxy: json['dialerProxy'] as String? ?? '',
+    );
+
+Map<String, dynamic> _$TailscalePropsToJson(_TailscaleProps instance) =>
+    <String, dynamic>{
+      'enabled': instance.enabled,
+      'hostname': instance.hostname,
+      'dialerProxy': instance.dialerProxy,
+    };
+
 _AppSettingProps _$AppSettingPropsFromJson(
   Map<String, dynamic> json,
 ) => _AppSettingProps(
@@ -87,6 +101,9 @@ _AppSettingProps _$AppSettingPropsFromJson(
         ),
       ) ??
       const {},
+  tailscale: json['tailscale'] == null
+      ? defaultTailscaleProps
+      : TailscaleProps.fromJson(json['tailscale'] as Map<String, dynamic>),
 );
 
 Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
@@ -123,6 +140,7 @@ Map<String, dynamic> _$AppSettingPropsToJson(_AppSettingProps instance) =>
       'serviceOrder': instance.serviceOrder,
       'disabledServices': instance.disabledServices,
       'tableColumnWidths': instance.tableColumnWidths,
+      'tailscale': instance.tailscale,
     };
 
 const _$TabAnimationEnumMap = {

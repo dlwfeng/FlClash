@@ -474,6 +474,8 @@ class SetupAction extends _$SetupAction {
   Future<BuiltProfile> getProfile({
     required SetupState setupState,
     required PatchClashConfig patchConfig,
+    // The module is gated to the mobile build; a test names it here.
+    bool? moduleAvailable,
   }) async {
     final profileId = setupState.profileId;
     if (profileId == null) {
@@ -509,9 +511,43 @@ class SetupAction extends _$SetupAction {
           }
         : profileBase?.base.config ?? await _core.getConfig(profileId);
     final proxyGroups = isCustom ? setupState.proxyGroups : <ProxyGroup>[];
-    final rules = isCustom ? setupState.rules : <Rule>[];
+    final matchTarget =
+        profileBase == null || setupState.matchTarget?.trim().isNotEmpty == true
+        ? setupState.matchTarget
+        : lastMatchTarget(profileBase.base.matchRules);
+    var rules = isCustom ? setupState.rules : <Rule>[];
+    var addedRules = setupState.addedRules;
     if (hasScript) {
       rawConfig = await handleEvaluate(scriptContent!, rawConfig);
+    }
+    final tailscale = ref.read(appSettingProvider).tailscale;
+    if ((moduleAvailable ?? tailscaleModuleAvailable) && tailscale.enabled) {
+      final tailscaleRules = [
+        for (final value in tailscaleRuleValues()) Rule.parse(value),
+      ];
+      final definition = tailscaleProxyDefinition(
+        hostname: tailscale.hostname,
+        stateDir: join(await appPath.homeDirPath, 'tailscale'),
+        dialerProxy: tailscaleDialerProxy(
+          configured: tailscale.dialerProxy,
+          defaultTarget: matchTarget?.trim().isNotEmpty == true
+              ? matchTarget
+              : lastMatchTarget([
+                  for (final rule in setupState.rules) rule.rawValue,
+                ]),
+        ),
+      );
+      final proxies = rawConfig['proxies'];
+      rawConfig = {
+        ...rawConfig,
+        'proxies': [if (proxies is List) ...proxies, definition],
+      };
+      final dns = tailscaleDns(rawConfig['dns']);
+      if (dns.isNotEmpty) {
+        rawConfig['dns'] = dns;
+      }
+      rules = [...tailscaleRules, ...rules];
+      addedRules = [...tailscaleRules, ...addedRules];
     }
     final directory = await appPath.profilesPath;
     final injected = await _resolveInjectedProviders(
@@ -533,14 +569,10 @@ class SetupAction extends _$SetupAction {
         bypassPrivateRoute: networkSetting.bypassPrivateRoute,
         keepEmptyDnsOverrides: setupState.profileType != ProfileType.custom,
         appendSystemDns: appendSystemDns,
-        addedRules: setupState.addedRules,
+        addedRules: addedRules,
         defaultUA: defaultUA,
         authentication: networkSetting.authentication.credentials,
-        matchTarget:
-            profileBase == null ||
-                setupState.matchTarget?.trim().isNotEmpty == true
-            ? setupState.matchTarget
-            : lastMatchTarget(profileBase.base.matchRules),
+        matchTarget: matchTarget,
         safeMode: ref.read(safeModeProvider),
       ),
     );

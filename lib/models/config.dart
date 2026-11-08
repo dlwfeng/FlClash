@@ -82,6 +82,7 @@ const defaultFilters = [
 ];
 
 const defaultAppSettingProps = AppSettingProps();
+const defaultTailscaleProps = TailscaleProps();
 const defaultVpnProps = VpnProps();
 const defaultAuthenticationProps = AuthenticationProps();
 const defaultNetworkProps = NetworkProps();
@@ -236,6 +237,21 @@ abstract class Filter with _$Filter {
 }
 
 @freezed
+abstract class TailscaleProps with _$TailscaleProps {
+  const factory TailscaleProps({
+    @Default(false) bool enabled,
+    @Default('') String hostname,
+
+    /// Names the outbound the Tailscale control connection dials through.
+    /// Empty picks the profile's own default outbound.
+    @Default('') String dialerProxy,
+  }) = _TailscaleProps;
+
+  factory TailscaleProps.fromJson(Map<String, Object?> json) =>
+      _$TailscalePropsFromJson(json);
+}
+
+@freezed
 abstract class AppSettingProps with _$AppSettingProps {
   const factory AppSettingProps({
     String? locale,
@@ -276,6 +292,7 @@ abstract class AppSettingProps with _$AppSettingProps {
     @Default([]) List<String> serviceOrder,
     @Default([]) List<String> disabledServices,
     @Default({}) Map<String, Map<String, double>> tableColumnWidths,
+    @Default(defaultTailscaleProps) TailscaleProps tailscale,
   }) = _AppSettingProps;
 
   factory AppSettingProps.fromJson(Map<String, Object?> json) =>

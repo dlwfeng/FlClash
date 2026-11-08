@@ -1266,6 +1266,9 @@ class MessageLookup extends MessageLookupByLibrary {
     "onlyStatisticsProxy": MessageLookupByLibrary.simpleMessage(
       "Only count proxy traffic",
     ),
+    "openLinkFailed": MessageLookupByLibrary.simpleMessage(
+      "Couldn\'t open the link.",
+    ),
     "optional": MessageLookupByLibrary.simpleMessage("Optional"),
     "options": MessageLookupByLibrary.simpleMessage("Options"),
     "other": MessageLookupByLibrary.simpleMessage("Other"),
@@ -1823,6 +1826,36 @@ class MessageLookup extends MessageLookupByLibrary {
     "systemProxy": MessageLookupByLibrary.simpleMessage("System proxy"),
     "tab": MessageLookupByLibrary.simpleMessage("Tab"),
     "tabAnimation": MessageLookupByLibrary.simpleMessage("Tab animation"),
+    "tailscale": MessageLookupByLibrary.simpleMessage("Tailscale"),
+    "tailscaleDialerProxyDesc": MessageLookupByLibrary.simpleMessage(
+      "Auto dials through the profile\'s default outbound, so the tunnel never dials itself.",
+    ),
+    "tailscaleEnableDesc": MessageLookupByLibrary.simpleMessage(
+      "Joins your tailnet through the Core\'s Tailscale outbound. Stored apart from the profile, so a subscription update never overwrites it.",
+    ),
+    "tailscaleLogin": MessageLookupByLibrary.simpleMessage(
+      "Log in to Tailscale",
+    ),
+    "tailscaleLoginDesc": MessageLookupByLibrary.simpleMessage(
+      "Finish authorizing in your browser, then come back.",
+    ),
+    "tailscaleStateNeedsLogin": MessageLookupByLibrary.simpleMessage(
+      "Login required",
+    ),
+    "tailscaleStateNeedsMachineAuth": MessageLookupByLibrary.simpleMessage(
+      "Waiting for approval",
+    ),
+    "tailscaleStateNoState": MessageLookupByLibrary.simpleMessage(
+      "Not started",
+    ),
+    "tailscaleStateRunning": MessageLookupByLibrary.simpleMessage("Connected"),
+    "tailscaleStateStarting": MessageLookupByLibrary.simpleMessage(
+      "Connecting",
+    ),
+    "tailscaleStateStopped": MessageLookupByLibrary.simpleMessage("Stopped"),
+    "tailscaleStatusHint": MessageLookupByLibrary.simpleMessage(
+      "FlClash must be running with the current profile applied. Tap to check again.",
+    ),
     "tapIconToRetry": MessageLookupByLibrary.simpleMessage(
       "Tap the icon to retry",
     ),
